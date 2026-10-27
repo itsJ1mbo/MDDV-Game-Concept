@@ -20,6 +20,8 @@ export interface LanternStateSnapshot {
   readonly status: LanternStatus;
   readonly currentAngleDegrees: number;
   readonly targetAngleDegrees: number;
+  readonly orbitAngleDegrees: number;
+  readonly orbitRadius: number;
   readonly intensity: number; // 0.0 to 1.0
   readonly heat: number; // 0 to maxHeat
   readonly maxHeat: number;

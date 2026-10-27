@@ -131,13 +131,10 @@ export class LevelScene extends Phaser.Scene {
       DEFAULT_GAME_CONFIG.level.worldHeight
     );
     this.cameras.main.startFollow(
-      {
-        x: this.level.startX,
-        y: this.level.startY,
-      } as unknown as Phaser.GameObjects.GameObject,
-      false,
-      0.08,
-      0.08
+      this.playerRenderer.getFollowTarget(),
+      true,
+      1,
+      1
     );
 
     // Interaction audio trigger
@@ -193,19 +190,6 @@ export class LevelScene extends Phaser.Scene {
     // 2. Update player movement and physics
     this.player.update(input, dtSeconds, this.level.platforms);
     const playerState = this.player.getState();
-
-    // Smooth camera target
-    const cam = this.cameras.main;
-    cam.scrollX = Phaser.Math.Linear(
-      cam.scrollX,
-      playerState.x - cam.width / 2,
-      0.08
-    );
-    cam.scrollY = Phaser.Math.Linear(
-      cam.scrollY,
-      playerState.y - cam.height / 2,
-      0.08
-    );
 
     // 3. Update enemies movement towards player
     for (const enemy of this.enemies) {

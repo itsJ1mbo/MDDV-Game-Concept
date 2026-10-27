@@ -20,6 +20,7 @@ export class FogRenderer {
       .setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(100);
+    this.scene.cameras.main.ignore(this.renderTexture);
 
     // 2. Offscreen graphics used for erasing shapes from the fog render texture
     this.eraseGraphics = this.scene.make.graphics({ x: 0, y: 0 }, false);
@@ -40,8 +41,9 @@ export class FogRenderer {
     const cam = this.scene.cameras.main;
 
     // Convert player position to screen coordinates
-    const screenPx = playerWorldX - cam.scrollX;
-    const screenPy = playerWorldY - cam.scrollY;
+    const screenPx = (playerWorldX - cam.worldView.x) * cam.zoom;
+    const screenPy = (playerWorldY - cam.worldView.y) * cam.zoom;
+    const revealScale = cam.zoom;
 
     // 1. Clear and refill base fog of war
     this.renderTexture.clear();
@@ -55,7 +57,7 @@ export class FogRenderer {
     this.eraseGraphics.fillCircle(
       screenPx,
       screenPy,
-      this.fogTuning.playerVisibilityRadius
+      this.fogTuning.playerVisibilityRadius * revealScale
     );
 
     // Erase beam cones for active lanterns
@@ -65,7 +67,7 @@ export class FogRenderer {
           this.eraseGraphics,
           screenPx,
           screenPy,
-          this.lanternTuning.maxBeamRange,
+          this.lanternTuning.maxBeamRange * revealScale,
           lantern.currentAngleDegrees,
           this.lanternTuning.beamAngleDegrees
         );

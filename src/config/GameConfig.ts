@@ -27,6 +27,9 @@ export interface LanternTuning {
   readonly idleAngleRightDegrees: number;
   readonly swivelSpeedDegPerSec: number;
   readonly focusSwivelSpeedDegPerSec: number;
+  readonly idleOrbitRadius: number;
+  readonly idleOrbitSpeedDegPerSec: number;
+  readonly focusOrbitLerpSpeedDegPerSec: number;
   readonly idleWanderAmplitudeDegrees: number;
   readonly idleWanderSpeedRadiansPerSec: number;
 }
@@ -100,6 +103,9 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
     idleAngleRightDegrees: 25,
     swivelSpeedDegPerSec: 540,
     focusSwivelSpeedDegPerSec: 1400,
+    idleOrbitRadius: 22,
+    idleOrbitSpeedDegPerSec: 48,
+    focusOrbitLerpSpeedDegPerSec: 720,
     idleWanderAmplitudeDegrees: 18,
     idleWanderSpeedRadiansPerSec: 1.8,
   },

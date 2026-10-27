@@ -49,9 +49,8 @@ export class PlayerRenderer {
       this.container.setAlpha(1.0);
     }
 
-    // Direction flip
     const facingLeft = player.facingDirection === 'left';
-    this.container.setScale(facingLeft ? -1 : 1, 1);
+    this.bearSprite.setFlipX(facingLeft);
 
     // Walking bob
     const bob =
@@ -63,28 +62,22 @@ export class PlayerRenderer {
     // Update Left Lantern
     this.updateLanternSprite(
       this.lanternLeftSprite,
-      -14,
-      -6 + bob,
       lanterns[0],
-      facingLeft
+      bob
     );
 
     // Update Right Lantern
     this.updateLanternSprite(
       this.lanternRightSprite,
-      14,
-      -6 + bob,
       lanterns[1],
-      facingLeft
+      bob
     );
   }
 
   private updateLanternSprite(
     sprite: Phaser.GameObjects.Sprite,
-    mountX: number,
-    mountY: number,
     lantern: LanternStateSnapshot,
-    facingLeft: boolean
+    bob: number
   ): void {
     // Select SVG texture based on lantern state
     let targetTexture: string = ASSET_KEYS.LANTERN_IDLE;
@@ -105,22 +98,16 @@ export class PlayerRenderer {
     }
 
     // Calculate swivel angle
-    let angleDeg = lantern.currentAngleDegrees;
-    if (facingLeft) {
-      angleDeg = (180 - angleDeg + 360) % 360;
-    }
-
-    const angleRad = Phaser.Math.DegToRad(angleDeg);
-
-    // Subtle swivel offset from bracket
-    const swivelDist = 3;
-    const lx = mountX + Math.cos(angleRad) * swivelDist;
-    const ly = mountY + Math.sin(angleRad) * swivelDist;
+    const orbitRad = Phaser.Math.DegToRad(lantern.orbitAngleDegrees);
+    const lx = Math.cos(orbitRad) * lantern.orbitRadius;
+    const ly = Math.sin(orbitRad) * lantern.orbitRadius + bob;
     sprite.setPosition(lx, ly);
 
     // Rotate lantern towards target
     if (lantern.hasTarget && !lantern.isDestroyed) {
-      sprite.setRotation(angleRad - Math.PI / 2);
+      sprite.setRotation(
+        Phaser.Math.DegToRad(lantern.currentAngleDegrees) - Math.PI / 2
+      );
     } else {
       sprite.setRotation(0);
     }
@@ -131,6 +118,10 @@ export class PlayerRenderer {
     const green = Math.round(255 * (1 - ratio));
     const blue = Math.round(255 * (1 - ratio));
     return (255 << 16) | (green << 8) | blue;
+  }
+
+  public getFollowTarget(): Phaser.GameObjects.Container {
+    return this.container;
   }
 
   public destroy(): void {

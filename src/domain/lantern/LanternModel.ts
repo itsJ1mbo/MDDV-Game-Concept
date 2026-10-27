@@ -11,6 +11,7 @@ export class LanternModel {
   private destroyed = false;
   private currentAngleDeg: number;
   private targetAngleDeg: number;
+  private orbitAngleDeg: number;
   private intensity: number;
   private activeTargetId: string | null = null;
   private threatTargetId: string | null = null;
@@ -27,6 +28,7 @@ export class LanternModel {
         ? tuning.idleAngleLeftDegrees
         : tuning.idleAngleRightDegrees;
     this.targetAngleDeg = this.currentAngleDeg;
+    this.orbitAngleDeg = this.currentAngleDeg;
     this.intensity = tuning.idleIntensity;
   }
 
@@ -67,7 +69,7 @@ export class LanternModel {
         )
       : 0;
 
-    // 1. Swivel targeting
+    // 1. Aim at a focused threat while independently orbiting the player.
     if (focusTarget) {
       this.targetAngleDeg = focusTarget.angleDegrees;
     } else {
@@ -92,6 +94,21 @@ export class LanternModel {
         ? this.tuning.focusSwivelSpeedDegPerSec
         : this.tuning.swivelSpeedDegPerSec
     );
+
+    if (focusTarget) {
+      this.swivelOrbitTowards(
+        focusTarget.angleDegrees,
+        dtSeconds,
+        this.tuning.focusOrbitLerpSpeedDegPerSec
+      );
+    } else {
+      const orbitDirection = this.side === 'left' ? 1 : -1;
+      this.orbitAngleDeg =
+        (this.orbitAngleDeg +
+          orbitDirection * this.tuning.idleOrbitSpeedDegPerSec * dtSeconds +
+          360) %
+        360;
+    }
 
     // 2. Beam request logic
     // Mechanic: If the beam does not sense any enemy it cannot be lit up
@@ -146,6 +163,23 @@ export class LanternModel {
     this.currentAngleDeg = (this.currentAngleDeg + 360) % 360;
   }
 
+  private swivelOrbitTowards(
+    targetAngle: number,
+    dtSeconds: number,
+    orbitSpeedDegPerSec: number
+  ): void {
+    let diff = (targetAngle - this.orbitAngleDeg) % 360;
+    if (diff < -180) diff += 360;
+    if (diff > 180) diff -= 360;
+
+    const maxDelta = orbitSpeedDegPerSec * dtSeconds;
+    this.orbitAngleDeg =
+      Math.abs(diff) <= maxDelta
+        ? targetAngle
+        : this.orbitAngleDeg + Math.sign(diff) * maxDelta;
+    this.orbitAngleDeg = (this.orbitAngleDeg + 360) % 360;
+  }
+
   public explode(): void {
     this.destroyed = true;
     this.heat = this.tuning.maxHeat;
@@ -169,6 +203,7 @@ export class LanternModel {
         ? this.tuning.idleAngleLeftDegrees
         : this.tuning.idleAngleRightDegrees;
     this.targetAngleDeg = this.currentAngleDeg;
+    this.orbitAngleDeg = this.currentAngleDeg;
     this.intensity = this.tuning.idleIntensity;
   }
 
@@ -186,6 +221,8 @@ export class LanternModel {
       status: this.getStatus(),
       currentAngleDegrees: this.currentAngleDeg,
       targetAngleDegrees: this.targetAngleDeg,
+      orbitAngleDegrees: this.orbitAngleDeg,
+      orbitRadius: this.tuning.idleOrbitRadius,
       intensity: this.intensity,
       heat: this.heat,
       maxHeat: this.tuning.maxHeat,
