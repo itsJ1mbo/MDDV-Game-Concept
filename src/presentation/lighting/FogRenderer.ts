@@ -45,7 +45,7 @@ export class FogRenderer {
 
     // 1. Clear and refill base fog of war
     this.renderTexture.clear();
-    this.renderTexture.fill(this.fogTuning.fogColor, this.fogTuning.fogOpacity);
+    this.renderTexture.fill(0x000000, 1);
 
     // 2. Erase visibility shapes
     this.eraseGraphics.clear();

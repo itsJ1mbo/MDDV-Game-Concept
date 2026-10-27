@@ -14,6 +14,8 @@ export class ThreatSensingSystem {
   ): {
     leftTarget: SensingTarget | null;
     rightTarget: SensingTarget | null;
+    leftThreat: SensingTarget | null;
+    rightThreat: SensingTarget | null;
   } {
     const playerState = player.getState();
     const px = playerState.x;
@@ -42,73 +44,48 @@ export class ThreatSensingSystem {
           isLeftOfPlayer: dx < 0,
         };
       })
-      .filter((c) => c.distance <= this.lanternTuning.detectionRange)
+      .filter((c) => c.distance <= this.lanternTuning.tingleDetectionRange)
       .sort((a, b) => a.distance - b.distance);
 
     let leftTarget: SensingTarget | null = null;
     let rightTarget: SensingTarget | null = null;
 
-    if (candidates.length === 0) {
-      return { leftTarget: null, rightTarget: null };
-    }
+    const leftThreat = this.selectTarget(candidates, true);
+    const rightThreat = this.selectTarget(candidates, false);
+    const closeCandidates = candidates.filter(
+      (candidate) =>
+        candidate.distance <= this.lanternTuning.focusDetectionRange
+    );
 
-    if (candidates.length === 1) {
-      // Single threat: both lanterns can sense it
-      const target: SensingTarget = {
-        id: candidates[0].id,
-        x: candidates[0].x,
-        y: candidates[0].y,
-        distance: candidates[0].distance,
-        angleDegrees: candidates[0].angleDegrees,
-      };
-      return { leftTarget: target, rightTarget: target };
-    }
+    leftTarget = this.selectTarget(closeCandidates, true);
+    rightTarget = this.selectTarget(closeCandidates, false);
 
-    // Multiple threats: prioritize left-side for left lantern, right-side for right lantern
-    const leftCandidates = candidates.filter((c) => c.isLeftOfPlayer);
-    const rightCandidates = candidates.filter((c) => !c.isLeftOfPlayer);
+    return { leftTarget, rightTarget, leftThreat, rightThreat };
+  }
 
-    if (leftCandidates.length > 0) {
-      const bestLeft = leftCandidates[0];
-      leftTarget = {
-        id: bestLeft.id,
-        x: bestLeft.x,
-        y: bestLeft.y,
-        distance: bestLeft.distance,
-        angleDegrees: bestLeft.angleDegrees,
-      };
-    } else {
-      const fallback = candidates[0];
-      leftTarget = {
-        id: fallback.id,
-        x: fallback.x,
-        y: fallback.y,
-        distance: fallback.distance,
-        angleDegrees: fallback.angleDegrees,
-      };
-    }
+  private selectTarget(
+    candidates: readonly (SensingTarget & { isLeftOfPlayer: boolean })[],
+    leftSide: boolean
+  ): SensingTarget | null {
+    if (candidates.length === 0) return null;
+    if (candidates.length === 1) return this.toSensingTarget(candidates[0]);
 
-    if (rightCandidates.length > 0) {
-      const bestRight = rightCandidates[0];
-      rightTarget = {
-        id: bestRight.id,
-        x: bestRight.x,
-        y: bestRight.y,
-        distance: bestRight.distance,
-        angleDegrees: bestRight.angleDegrees,
-      };
-    } else {
-      // If no right candidates, pick second closest overall or closest
-      const fallback = candidates[1] ?? candidates[0];
-      rightTarget = {
-        id: fallback.id,
-        x: fallback.x,
-        y: fallback.y,
-        distance: fallback.distance,
-        angleDegrees: fallback.angleDegrees,
-      };
-    }
+    const sideCandidates = candidates.filter(
+      (candidate) => candidate.isLeftOfPlayer === leftSide
+    );
+    const selected = sideCandidates[0] ?? candidates[0];
+    return this.toSensingTarget(selected);
+  }
 
-    return { leftTarget, rightTarget };
+  private toSensingTarget(
+    candidate: SensingTarget & { isLeftOfPlayer: boolean }
+  ): SensingTarget {
+    return {
+      id: candidate.id,
+      x: candidate.x,
+      y: candidate.y,
+      distance: candidate.distance,
+      angleDegrees: candidate.angleDegrees,
+    };
   }
 }

@@ -4,14 +4,12 @@ export interface ActionInputSnapshot extends PlayerMovementInput {
   readonly requestBeamLeft: boolean;
   readonly requestBeamRight: boolean;
   readonly requestRest: boolean;
-  readonly toggleDebug: boolean;
   readonly togglePause: boolean;
 }
 
 export class InputManager {
   private keys: Record<string, boolean> = {};
   private mouseButtons: [boolean, boolean, boolean] = [false, false, false];
-  private debugPressedThisFrame = false;
   private pausePressedThisFrame = false;
 
   constructor() {
@@ -23,9 +21,6 @@ export class InputManager {
 
     window.addEventListener('keydown', (e) => {
       this.keys[e.code] = true;
-      if (e.code === 'F1' || e.code === 'Backquote') {
-        this.debugPressedThisFrame = true;
-      }
       if (e.code === 'Escape' || e.code === 'KeyP') {
         this.pausePressedThisFrame = true;
       }
@@ -77,9 +72,6 @@ export class InputManager {
       this.keys['KeyE'] || this.keys['KeyS'] || this.keys['ArrowDown']
     );
 
-    const toggleDebug = this.debugPressedThisFrame;
-    this.debugPressedThisFrame = false;
-
     const togglePause = this.pausePressedThisFrame;
     this.pausePressedThisFrame = false;
 
@@ -89,7 +81,6 @@ export class InputManager {
       requestBeamLeft,
       requestBeamRight,
       requestRest,
-      toggleDebug,
       togglePause,
     };
   }

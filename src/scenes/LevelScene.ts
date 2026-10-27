@@ -46,6 +46,7 @@ export class LevelScene extends Phaser.Scene {
   private footstepTimer = 0;
   private wasGroundedLastFrame = false;
   private previousLanternState: [boolean, boolean] = [false, false]; // exploded tracking
+  private previousThreatState: [string | null, string | null] = [null, null];
   private isPaused = false;
 
   constructor() {
@@ -117,7 +118,7 @@ export class LevelScene extends Phaser.Scene {
       width,
       height
     );
-    this.hud = new GameHud(this, width, height);
+    this.hud = new GameHud(this);
 
     // 4. Setup Tiled Map & SVG Scenery (Zero geometry code)
     this.setupLevelMapAndScenery();
@@ -178,19 +179,12 @@ export class LevelScene extends Phaser.Scene {
     // 1. Capture input snapshot
     const input = this.inputManager.getSnapshot();
 
-    // Debug toggle
-    if (input.toggleDebug) {
-      this.hud.toggleDebug();
-    }
-
     // Pause toggle
     if (input.togglePause) {
       this.isPaused = !this.isPaused;
       if (this.isPaused) {
-        this.hud.showNotification('GAME PAUSED (Press [Esc] or [P] to Resume)');
         return;
       } else {
-        this.hud.showNotification('RESUMED', 1);
       }
     }
 
@@ -226,8 +220,36 @@ export class LevelScene extends Phaser.Scene {
     );
 
     // 5. Update lantern state (swivel, beam requests, heat, cooling, explosion)
-    this.lanterns[0].update(dtSeconds, sensed.leftTarget, input.requestBeamLeft);
-    this.lanterns[1].update(dtSeconds, sensed.rightTarget, input.requestBeamRight);
+    this.lanterns[0].update(
+      dtSeconds,
+      sensed.leftTarget,
+      sensed.leftThreat,
+      input.requestBeamLeft
+    );
+    this.lanterns[1].update(
+      dtSeconds,
+      sensed.rightTarget,
+      sensed.rightThreat,
+      input.requestBeamRight
+    );
+
+    const threatStates: [string | null, string | null] = [
+      sensed.leftThreat?.id ?? null,
+      sensed.rightThreat?.id ?? null,
+    ];
+    for (let i = 0; i < threatStates.length; i++) {
+      if (
+        threatStates[i] !== null &&
+        threatStates[i] !== this.previousThreatState[i]
+      ) {
+        this.audio.playThreatSense(
+          i === 0
+            ? this.lanterns[0].getState().threatProximityRatio
+            : this.lanterns[1].getState().threatProximityRatio
+        );
+      }
+    }
+    this.previousThreatState = threatStates;
 
     // 6. Combat System: resolve active beam exposure and enemy contact
     this.combatSystem.update(
@@ -246,13 +268,9 @@ export class LevelScene extends Phaser.Scene {
           }
           this.audio.playEnemyDisintegrated();
         },
-        onPlayerDamaged: (livesRemaining) => {
+        onPlayerDamaged: () => {
           this.audio.playPlayerHurt();
           this.cameras.main.shake(180, 0.012);
-          this.hud.showNotification(
-            `Teddy was struck! Lives remaining: ${livesRemaining}`,
-            2
-          );
         },
       }
     );
@@ -270,7 +288,6 @@ export class LevelScene extends Phaser.Scene {
       );
       if (restResult.success) {
         this.audio.playCheckpointRest();
-        this.hud.showNotification(restResult.message, 3.5);
       }
     }
 
@@ -283,20 +300,12 @@ export class LevelScene extends Phaser.Scene {
       {
         onPlayerDied: () => {
           this.audio.playPlayerHurt();
-          this.hud.showNotification(
-            'Teddy fell into the dark! Respawning at checkpoint...',
-            2.5
-          );
         },
         onPlayerRespawned: () => {
           this.cameras.main.flash(250, 20, 20, 30);
         },
         onLevelCompleted: () => {
           this.audio.playCheckpointRest();
-          this.hud.showNotification(
-            'Teddy reached the Bedroom Door! Safe at last!',
-            10
-          );
         },
       }
     );
@@ -321,12 +330,7 @@ export class LevelScene extends Phaser.Scene {
       interactableCp?.id ?? null
     );
     this.fogRenderer.update(playerState.x, playerState.y, lanternStates);
-    this.hud.update(
-      dtSeconds,
-      this.player.getState(),
-      lanternStates,
-      this.enemies.filter((e) => !e.isDestroyed()).length
-    );
+    this.hud.update(this.player.getState());
   }
 
   private updateAudioFeedback(
@@ -376,12 +380,10 @@ export class LevelScene extends Phaser.Scene {
     if (l0Exploded && !this.previousLanternState[0]) {
       this.audio.playLanternExplosion();
       this.cameras.main.shake(250, 0.02);
-      this.hud.showNotification('LEFT LANTERN OVERHEATED AND EXPLODED!', 3);
     }
     if (l1Exploded && !this.previousLanternState[1]) {
       this.audio.playLanternExplosion();
       this.cameras.main.shake(250, 0.02);
-      this.hud.showNotification('RIGHT LANTERN OVERHEATED AND EXPLODED!', 3);
     }
     this.previousLanternState = [l0Exploded, l1Exploded];
   }

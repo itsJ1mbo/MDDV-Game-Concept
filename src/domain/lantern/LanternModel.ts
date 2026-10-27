@@ -13,7 +13,10 @@ export class LanternModel {
   private targetAngleDeg: number;
   private intensity: number;
   private activeTargetId: string | null = null;
+  private threatTargetId: string | null = null;
+  private threatProximityRatio = 0;
   private isBeamActive = false;
+  private idleTimeSeconds = 0;
 
   constructor(
     public readonly side: LanternSide,
@@ -29,34 +32,70 @@ export class LanternModel {
 
   public update(
     dtSeconds: number,
-    target: SensingTarget | null,
-    requestActiveBeam: boolean
+    focusTarget: SensingTarget | null,
+    threatTargetOrRequest: SensingTarget | boolean | null,
+    requestActiveBeam?: boolean
   ): void {
+    const threatTarget =
+      typeof threatTargetOrRequest === 'boolean'
+        ? focusTarget
+        : threatTargetOrRequest;
+    const beamRequested =
+      typeof threatTargetOrRequest === 'boolean'
+        ? threatTargetOrRequest
+        : requestActiveBeam ?? false;
     if (this.destroyed) {
       this.isBeamActive = false;
       this.activeTargetId = null;
+      this.threatTargetId = null;
+      this.threatProximityRatio = 0;
       this.intensity = 0;
       return;
     }
 
-    const hasTarget = target !== null;
-    this.activeTargetId = target ? target.id : null;
+    this.idleTimeSeconds += dtSeconds;
+    const hasTarget = focusTarget !== null;
+    this.activeTargetId = focusTarget ? focusTarget.id : null;
+    this.threatTargetId = threatTarget ? threatTarget.id : null;
+    this.threatProximityRatio = threatTarget
+      ? Math.max(
+          0,
+          Math.min(
+            1,
+            1 - threatTarget.distance / this.tuning.tingleDetectionRange
+          )
+        )
+      : 0;
 
     // 1. Swivel targeting
-    if (hasTarget) {
-      this.targetAngleDeg = target.angleDegrees;
+    if (focusTarget) {
+      this.targetAngleDeg = focusTarget.angleDegrees;
     } else {
-      this.targetAngleDeg =
+      const baseAngle =
         this.side === 'left'
           ? this.tuning.idleAngleLeftDegrees
           : this.tuning.idleAngleRightDegrees;
+      const phaseOffset = this.side === 'left' ? 0 : Math.PI;
+      this.targetAngleDeg =
+        baseAngle +
+        Math.sin(
+          this.idleTimeSeconds * this.tuning.idleWanderSpeedRadiansPerSec +
+            phaseOffset
+        ) *
+          this.tuning.idleWanderAmplitudeDegrees;
     }
 
-    this.swivelTowards(this.targetAngleDeg, dtSeconds);
+    this.swivelTowards(
+      this.targetAngleDeg,
+      dtSeconds,
+      focusTarget
+        ? this.tuning.focusSwivelSpeedDegPerSec
+        : this.tuning.swivelSpeedDegPerSec
+    );
 
     // 2. Beam request logic
     // Mechanic: If the beam does not sense any enemy it cannot be lit up
-    const canFireBeam = hasTarget && requestActiveBeam && !this.destroyed;
+    const canFireBeam = hasTarget && beamRequested && !this.destroyed;
     this.isBeamActive = canFireBeam;
 
     // 3. Heat & Cooling
@@ -73,10 +112,13 @@ export class LanternModel {
     // 4. Intensity
     if (this.isBeamActive) {
       this.intensity = this.tuning.maxIntensity;
-    } else if (hasTarget) {
+    } else if (threatTarget) {
       const proximity = Math.max(
         0,
-        Math.min(1, 1 - target.distance / this.tuning.detectionRange)
+        Math.min(
+          1,
+          1 - threatTarget.distance / this.tuning.tingleDetectionRange
+        )
       );
       this.intensity =
         this.tuning.idleIntensity +
@@ -86,12 +128,16 @@ export class LanternModel {
     }
   }
 
-  private swivelTowards(targetAngle: number, dtSeconds: number): void {
+  private swivelTowards(
+    targetAngle: number,
+    dtSeconds: number,
+    swivelSpeedDegPerSec: number
+  ): void {
     let diff = (targetAngle - this.currentAngleDeg) % 360;
     if (diff < -180) diff += 360;
     if (diff > 180) diff -= 360;
 
-    const maxDelta = this.tuning.swivelSpeedDegPerSec * dtSeconds;
+    const maxDelta = swivelSpeedDegPerSec * dtSeconds;
     if (Math.abs(diff) <= maxDelta) {
       this.currentAngleDeg = targetAngle;
     } else {
@@ -105,6 +151,8 @@ export class LanternModel {
     this.heat = this.tuning.maxHeat;
     this.isBeamActive = false;
     this.activeTargetId = null;
+    this.threatTargetId = null;
+    this.threatProximityRatio = 0;
     this.intensity = 0;
   }
 
@@ -113,6 +161,9 @@ export class LanternModel {
     this.heat = 0;
     this.isBeamActive = false;
     this.activeTargetId = null;
+    this.threatTargetId = null;
+    this.threatProximityRatio = 0;
+    this.idleTimeSeconds = 0;
     this.currentAngleDeg =
       this.side === 'left'
         ? this.tuning.idleAngleLeftDegrees
@@ -142,6 +193,9 @@ export class LanternModel {
       isBeamActive: this.isBeamActive,
       activeTargetId: this.activeTargetId,
       hasTarget: this.activeTargetId !== null,
+      isThreatDetected: this.threatTargetId !== null,
+      threatTargetId: this.threatTargetId,
+      threatProximityRatio: this.threatProximityRatio,
     };
   }
 }

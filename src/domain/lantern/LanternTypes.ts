@@ -27,4 +27,7 @@ export interface LanternStateSnapshot {
   readonly isBeamActive: boolean;
   readonly activeTargetId: string | null;
   readonly hasTarget: boolean;
+  readonly isThreatDetected: boolean;
+  readonly threatTargetId: string | null;
+  readonly threatProximityRatio: number;
 }

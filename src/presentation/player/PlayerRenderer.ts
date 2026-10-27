@@ -98,11 +98,18 @@ export class PlayerRenderer {
       sprite.setTexture(targetTexture);
     }
 
+    if (lantern.isDestroyed) {
+      sprite.clearTint();
+    } else {
+      sprite.setTint(this.getHeatTint(lantern.heat / lantern.maxHeat));
+    }
+
     // Calculate swivel angle
     let angleDeg = lantern.currentAngleDegrees;
     if (facingLeft) {
       angleDeg = (180 - angleDeg + 360) % 360;
     }
+
     const angleRad = Phaser.Math.DegToRad(angleDeg);
 
     // Subtle swivel offset from bracket
@@ -117,6 +124,13 @@ export class PlayerRenderer {
     } else {
       sprite.setRotation(0);
     }
+  }
+
+  private getHeatTint(heatRatio: number): number {
+    const ratio = Math.max(0, Math.min(1, heatRatio));
+    const green = Math.round(255 * (1 - ratio));
+    const blue = Math.round(255 * (1 - ratio));
+    return (255 << 16) | (green << 8) | blue;
   }
 
   public destroy(): void {

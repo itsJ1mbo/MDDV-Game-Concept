@@ -13,7 +13,8 @@ export interface PlayerTuning {
 }
 
 export interface LanternTuning {
-  readonly detectionRange: number;
+  readonly tingleDetectionRange: number;
+  readonly focusDetectionRange: number;
   readonly idleIntensity: number;
   readonly maxIntensity: number;
   readonly maxBeamRange: number;
@@ -25,6 +26,9 @@ export interface LanternTuning {
   readonly idleAngleLeftDegrees: number;
   readonly idleAngleRightDegrees: number;
   readonly swivelSpeedDegPerSec: number;
+  readonly focusSwivelSpeedDegPerSec: number;
+  readonly idleWanderAmplitudeDegrees: number;
+  readonly idleWanderSpeedRadiansPerSec: number;
 }
 
 export interface FogTuning {
@@ -82,7 +86,8 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
     height: 38,
   },
   lantern: {
-    detectionRange: 280,
+    tingleDetectionRange: 360,
+    focusDetectionRange: 220,
     idleIntensity: 0.25,
     maxIntensity: 1.0,
     maxBeamRange: 260,
@@ -94,12 +99,15 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
     idleAngleLeftDegrees: 155,
     idleAngleRightDegrees: 25,
     swivelSpeedDegPerSec: 540,
+    focusSwivelSpeedDegPerSec: 1400,
+    idleWanderAmplitudeDegrees: 18,
+    idleWanderSpeedRadiansPerSec: 1.8,
   },
   fog: {
     playerVisibilityRadius: 85,
     beamVisibilityRadius: 260,
-    fogColor: 0x030306,
-    fogOpacity: 0.98,
+    fogColor: 0x000000,
+    fogOpacity: 1,
     edgeSoftness: 12,
   },
   enemy: {
@@ -131,8 +139,16 @@ export function validateConfig(config: GameConfig): void {
   if (config.player.moveSpeed <= 0) {
     throw new Error(`[Config] player.moveSpeed must be > 0, got ${config.player.moveSpeed}`);
   }
-  if (config.lantern.detectionRange <= 0) {
-    throw new Error(`[Config] lantern.detectionRange must be > 0, got ${config.lantern.detectionRange}`);
+  if (config.lantern.tingleDetectionRange <= 0) {
+    throw new Error(`[Config] lantern.tingleDetectionRange must be > 0, got ${config.lantern.tingleDetectionRange}`);
+  }
+  if (
+    config.lantern.focusDetectionRange <= 0 ||
+    config.lantern.focusDetectionRange > config.lantern.tingleDetectionRange
+  ) {
+    throw new Error(
+      `[Config] lantern.focusDetectionRange must be > 0 and <= tingleDetectionRange, got ${config.lantern.focusDetectionRange}`
+    );
   }
   if (config.lantern.beamAngleDegrees <= 0 || config.lantern.beamAngleDegrees >= 180) {
     throw new Error(

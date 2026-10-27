@@ -11,9 +11,45 @@
 </head>
 
 <body>
-    <h1>The Lost Bear - Echoes in the Dark</h1>
+    <main class="site-shell">
+        <header class="site-header">
+            <div>
+                <p class="eyebrow">A game of light, fear, and finding home</p>
+                <h1>The Lost Bear</h1>
+                <p class="subtitle">Echoes in the Dark</p>
+            </div>
+            <div class="status-mark" aria-label="Lantern symbol">✦</div>
+        </header>
+
+        <section class="game-layout" aria-label="Game and controls">
+            <div class="game-frame">
+                <div class="frame-glow"></div>
+                <div id="juego"></div>
+            </div>
+
+            <aside class="controls-panel">
+                <p class="panel-kicker">Field notes</p>
+                <h2>Controls</h2>
+                <p class="panel-intro">Keep the lanterns steady. The dark is listening.</p>
+                <div class="control-list">
+                    <div class="control-row"><span>Move</span><strong><kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd></strong></div>
+                    <div class="control-row"><span>Jump</span><strong><kbd>W</kbd> / <kbd>Space</kbd></strong></div>
+                    <div class="control-row"><span>Left beam</span><strong><kbd>J</kbd> / <kbd>Mouse 1</kbd></strong></div>
+                    <div class="control-row"><span>Right beam</span><strong><kbd>K</kbd> / <kbd>Mouse 2</kbd></strong></div>
+                    <div class="control-row"><span>Rest</span><strong><kbd>E</kbd></strong></div>
+                    <div class="control-row"><span>Pause</span><strong><kbd>Esc</kbd> / <kbd>P</kbd></strong></div>
+                </div>
+                <p class="controls-note">The three hearts in the upper-left corner are all you need to watch.</p>
+            </aside>
+        </section>
+
+        <footer class="site-footer">
+            <span>Follow the warmth home.</span>
+            <span class="footer-line"></span>
+            <span>Chapter I · The Dark Attic</span>
+        </footer>
+    </main>
     <script src="./src/game.ts" type="module"></script>
-    <div id="juego"></div>
 </body>
 
 </html>
