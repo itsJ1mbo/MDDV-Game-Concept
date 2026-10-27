@@ -114,3 +114,5 @@ src/star.ts~
 
 out/
 dist-electron/
+
+docs/

@@ -4,11 +4,13 @@
     "main": "./dist-electron/main.js",
     "description": "Plantilla para juegos con Phaser",
     "scripts": {
-        "electron": "npm i && npx vite -c electron.vite.config.js",
-        "build:electron": "npm i && npx vite build -c electron.vite.config.js",
-        "release:electron": "npm i && npm run build:electron && electron-builder --publish never",
-        "start": "npm i && npx vite",
-        "build": "npm i && npx vite build --outDir docs/"
+        "electron": "npx vite -c electron.vite.config.js",
+        "build:electron": "npx vite build -c electron.vite.config.js",
+        "release:electron": "npm run build:electron && electron-builder --publish never",
+        "start": "npx vite",
+        "build": "npx vite build --outDir docs/",
+        "test": "vitest run",
+        "typecheck": "tsc --noEmit"
     },
     "repository": {
         "type": "git",
@@ -25,9 +27,11 @@
     "devDependencies": {
         "electron": "^44.4.5",
         "electron-builder": "^26.15.3",
+        "typescript": "^7.0.2",
         "vite": "^8.3.1",
         "vite-plugin-electron": "^1.1.2",
-        "vite-plugin-electron-renderer": "^1.0.0"
+        "vite-plugin-electron-renderer": "^1.0.0",
+        "vitest": "^5.0.5"
     },
     "dependencies": {
         "phaser": "^4.2.1"
