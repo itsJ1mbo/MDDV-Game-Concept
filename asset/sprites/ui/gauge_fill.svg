@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 166 12" width="166" height="12">
+  <defs>
+    <linearGradient id="heatGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="35%" stop-color="#f59e0b"/>
+      <stop offset="75%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="166" height="12" rx="2" fill="url(#heatGradient)"/>
+  <!-- Top Specular Highlight Line -->
+  <line x1="2" y1="1.5" x2="164" y2="1.5" stroke="#ffffff" stroke-width="0.8" opacity="0.35"/>
+</svg>

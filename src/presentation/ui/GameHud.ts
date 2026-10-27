@@ -1,16 +1,26 @@
 import * as Phaser from 'phaser';
 import { LanternStateSnapshot } from '../../domain/lantern/LanternTypes';
 import { PlayerStateSnapshot } from '../../domain/player/PlayerTypes';
+import { ASSET_KEYS } from '../../infrastructure/assets/AssetKeys';
 
 export class GameHud {
   private container: Phaser.GameObjects.Container;
-  private graphics: Phaser.GameObjects.Graphics;
   private debugText: Phaser.GameObjects.Text;
   private notificationText: Phaser.GameObjects.Text;
   private leftLanternLabel: Phaser.GameObjects.Text;
   private rightLanternLabel: Phaser.GameObjects.Text;
   private notificationTimer = 0;
   private debugVisible = false;
+
+  // Vector SVG UI Elements
+  private heartImages: Phaser.GameObjects.Image[] = [];
+  private leftGaugeFrame: Phaser.GameObjects.Image;
+  private leftGaugeFill: Phaser.GameObjects.Image;
+  private leftBulb: Phaser.GameObjects.Image;
+
+  private rightGaugeFrame: Phaser.GameObjects.Image;
+  private rightGaugeFill: Phaser.GameObjects.Image;
+  private rightBulb: Phaser.GameObjects.Image;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -22,10 +32,17 @@ export class GameHud {
       .setScrollFactor(0)
       .setDepth(110);
 
-    this.graphics = this.scene.add.graphics();
-    this.container.add(this.graphics);
+    // 1. Stitched Heart Life Slots (SVG Images)
+    const maxLives = 3;
+    for (let i = 0; i < maxLives; i++) {
+      const heartImg = this.scene.add
+        .image(30 + i * 28, 26, ASSET_KEYS.HEART_FULL)
+        .setOrigin(0.5, 0.5);
+      this.heartImages.push(heartImg);
+      this.container.add(heartImg);
+    }
 
-    // Left Lantern Label
+    // 2. Left Lantern Gauge
     this.leftLanternLabel = this.scene.add.text(20, 50, 'LEFT LANTERN [J / LMB]', {
       fontFamily: 'Segoe UI, Arial, sans-serif',
       fontSize: '10px',
@@ -33,7 +50,19 @@ export class GameHud {
     });
     this.container.add(this.leftLanternLabel);
 
-    // Right Lantern Label
+    this.leftGaugeFrame = this.scene.add
+      .image(20, 66, ASSET_KEYS.GAUGE_FRAME)
+      .setOrigin(0, 0);
+    this.leftGaugeFill = this.scene.add
+      .image(22, 68, ASSET_KEYS.GAUGE_FILL)
+      .setOrigin(0, 0);
+    this.leftBulb = this.scene.add
+      .image(180, 56, ASSET_KEYS.BULB_INACTIVE)
+      .setOrigin(0.5, 0.5);
+
+    this.container.add([this.leftGaugeFrame, this.leftGaugeFill, this.leftBulb]);
+
+    // 3. Right Lantern Gauge
     this.rightLanternLabel = this.scene.add.text(220, 50, 'RIGHT LANTERN [K / RMB]', {
       fontFamily: 'Segoe UI, Arial, sans-serif',
       fontSize: '10px',
@@ -41,7 +70,19 @@ export class GameHud {
     });
     this.container.add(this.rightLanternLabel);
 
-    // Notification toast banner
+    this.rightGaugeFrame = this.scene.add
+      .image(220, 66, ASSET_KEYS.GAUGE_FRAME)
+      .setOrigin(0, 0);
+    this.rightGaugeFill = this.scene.add
+      .image(222, 68, ASSET_KEYS.GAUGE_FILL)
+      .setOrigin(0, 0);
+    this.rightBulb = this.scene.add
+      .image(380, 56, ASSET_KEYS.BULB_INACTIVE)
+      .setOrigin(0.5, 0.5);
+
+    this.container.add([this.rightGaugeFrame, this.rightGaugeFill, this.rightBulb]);
+
+    // 4. Notification Toast Banner
     this.notificationText = this.scene.add
       .text(viewportWidth / 2, 45, '', {
         fontFamily: 'Segoe UI, Arial, sans-serif',
@@ -54,7 +95,7 @@ export class GameHud {
       .setVisible(false);
     this.container.add(this.notificationText);
 
-    // Debug text
+    // 5. Debug Text
     this.debugText = this.scene.add
       .text(14, viewportHeight - 110, '', {
         fontFamily: 'Consolas, monospace',
@@ -66,7 +107,7 @@ export class GameHud {
       .setVisible(false);
     this.container.add(this.debugText);
 
-    // Static controls hint at the bottom
+    // 6. Static Controls Hint at bottom
     const controlsText = this.scene.add
       .text(
         viewportWidth / 2,
@@ -109,16 +150,32 @@ export class GameHud {
       }
     }
 
-    this.graphics.clear();
+    // 1. Update Stitched Hearts
+    for (let i = 0; i < this.heartImages.length; i++) {
+      const hasLife = i < player.lives;
+      const targetTex = hasLife ? ASSET_KEYS.HEART_FULL : ASSET_KEYS.HEART_EMPTY;
+      if (this.heartImages[i].texture.key !== targetTex) {
+        this.heartImages[i].setTexture(targetTex);
+      }
+    }
 
-    // 1. Lives (Stitched Hearts)
-    this.drawLives(player.lives, player.maxLives);
+    // 2. Update Left Lantern Gauge
+    this.updateGauge(
+      lanterns[0],
+      this.leftLanternLabel,
+      this.leftGaugeFill,
+      this.leftBulb
+    );
 
-    // 2. Dual Lantern Gauges
-    this.drawLanternGauge(20, 52, lanterns[0], this.leftLanternLabel);
-    this.drawLanternGauge(220, 52, lanterns[1], this.rightLanternLabel);
+    // 3. Update Right Lantern Gauge
+    this.updateGauge(
+      lanterns[1],
+      this.rightLanternLabel,
+      this.rightGaugeFill,
+      this.rightBulb
+    );
 
-    // 3. Debug Overlay
+    // 4. Debug Overlay
     if (this.debugVisible) {
       this.debugText.setText(
         `[DEBUG MONITOR]\n` +
@@ -130,95 +187,39 @@ export class GameHud {
     }
   }
 
-  private drawLives(lives: number, maxLives: number): void {
-    const startX = 20;
-    const startY = 22;
-
-    for (let i = 0; i < maxLives; i++) {
-      const x = startX + i * 26;
-      const y = startY;
-      const hasLife = i < lives;
-
-      if (hasLife) {
-        // Full heart (stitched plush heart)
-        this.graphics.fillStyle(0xd63e48, 1);
-        this.graphics.fillCircle(x - 4, y - 3, 5);
-        this.graphics.fillCircle(x + 4, y - 3, 5);
-        this.graphics.fillTriangle(x - 9, y - 2, x + 9, y - 2, x, y + 8);
-
-        // Stitch cross
-        this.graphics.lineStyle(1, 0xffd2d6, 0.85);
-        this.graphics.lineBetween(x - 2, y - 2, x + 2, y + 2);
-        this.graphics.lineBetween(x - 2, y + 2, x + 2, y - 2);
-      } else {
-        // Lost / torn life slot
-        this.graphics.fillStyle(0x281e22, 0.8);
-        this.graphics.fillCircle(x - 4, y - 3, 5);
-        this.graphics.fillCircle(x + 4, y - 3, 5);
-        this.graphics.fillTriangle(x - 9, y - 2, x + 9, y - 2, x, y + 8);
-
-        this.graphics.lineStyle(1, 0x5a3e46, 0.7);
-        this.graphics.strokeCircle(x - 4, y - 3, 5);
-        this.graphics.strokeCircle(x + 4, y - 3, 5);
-      }
-    }
-  }
-
-  private drawLanternGauge(
-    x: number,
-    y: number,
+  private updateGauge(
     lantern: LanternStateSnapshot,
-    label: Phaser.GameObjects.Text
+    label: Phaser.GameObjects.Text,
+    fillImg: Phaser.GameObjects.Image,
+    bulbImg: Phaser.GameObjects.Image
   ): void {
-    const width = 170;
-    const height = 12;
-
-    // Background pill frame
-    this.graphics.fillStyle(0x0e1118, 0.85);
-    this.graphics.fillRoundedRect(x, y + 14, width, height, 4);
-    this.graphics.lineStyle(1, 0x2d3a4e, 0.9);
-    this.graphics.strokeRoundedRect(x, y + 14, width, height, 4);
+    const maxWidth = 166;
 
     if (lantern.isDestroyed) {
-      // Exploded state
-      this.graphics.fillStyle(0x751b1b, 0.9);
-      this.graphics.fillRoundedRect(x + 2, y + 16, width - 4, height - 4, 2);
+      fillImg.setVisible(false);
       label.setText(label.text.split(' - ')[0] + ' - DESTROYED');
       label.setColor('#e04848');
+      bulbImg.setTexture(ASSET_KEYS.BULB_INACTIVE);
       return;
     }
 
     label.setText(label.text.split(' - ')[0]);
     label.setColor('#9aa8ba');
 
-    // Heat fill bar
-    const ratio = Math.min(1, lantern.heat / lantern.maxHeat);
-    const fillWidth = Math.max(0, (width - 4) * ratio);
-
-    if (fillWidth > 0) {
-      let heatColor = 0xffbf33; // Amber
-      if (ratio > 0.8) {
-        heatColor = 0xee2c2c; // Critical red
-      } else if (ratio > 0.5) {
-        heatColor = 0xff6b22; // Hot orange
-      }
-
-      this.graphics.fillStyle(heatColor, 1);
-      this.graphics.fillRoundedRect(x + 2, y + 16, fillWidth, height - 4, 2);
+    const ratio = Math.max(0, Math.min(1, lantern.heat / lantern.maxHeat));
+    if (ratio > 0.01) {
+      fillImg.setVisible(true);
+      fillImg.setDisplaySize(maxWidth * ratio, 12);
+    } else {
+      fillImg.setVisible(false);
     }
 
-    // Sensing / locked indicator bulb
-    const bulbX = x + width - 8;
-    const bulbY = y + 7;
-    if (lantern.hasTarget) {
-      const bulbColor = lantern.isBeamActive ? 0xffffff : 0xffea55;
-      this.graphics.fillStyle(bulbColor, 1);
-      this.graphics.fillCircle(bulbX, bulbY, 4);
-      this.graphics.lineStyle(1, 0xffbb22, 0.8);
-      this.graphics.strokeCircle(bulbX, bulbY, 6);
-    } else {
-      this.graphics.fillStyle(0x283040, 0.8);
-      this.graphics.fillCircle(bulbX, bulbY, 3);
+    // Sensor Indicator Bulb
+    const targetBulb = lantern.hasTarget
+      ? ASSET_KEYS.BULB_ACTIVE
+      : ASSET_KEYS.BULB_INACTIVE;
+    if (bulbImg.texture.key !== targetBulb) {
+      bulbImg.setTexture(targetBulb);
     }
   }
 

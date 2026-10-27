@@ -1,145 +1,154 @@
 import * as Phaser from 'phaser';
 import { EnemyStateSnapshot } from '../../domain/enemy/EnemyTypes';
+import { ASSET_KEYS } from '../../infrastructure/assets/AssetKeys';
 
-interface DisintegrationParticle {
-  x: number;
-  y: number;
+interface EmberParticle {
+  sprite: Phaser.GameObjects.Sprite;
   vx: number;
   vy: number;
-  alpha: number;
-  size: number;
   life: number;
+  maxLife: number;
 }
 
 export class EnemyRenderer {
-  private graphics: Phaser.GameObjects.Graphics;
-  private particleGraphics: Phaser.GameObjects.Graphics;
-  private particles: DisintegrationParticle[] = [];
+  private enemySprites: Map<string, Phaser.GameObjects.Sprite> = new Map();
+  private particles: EmberParticle[] = [];
   private animTimer = 0;
 
-  constructor(private readonly scene: Phaser.Scene) {
-    this.graphics = this.scene.add.graphics().setDepth(55);
-    this.particleGraphics = this.scene.add.graphics().setDepth(58);
-  }
+  constructor(private readonly scene: Phaser.Scene) {}
 
   public update(dtSeconds: number, enemies: readonly EnemyStateSnapshot[]): void {
     this.animTimer += dtSeconds * 4;
 
-    this.graphics.clear();
-    this.particleGraphics.clear();
-
-    // 1. Update and draw existing particles
+    // 1. Update Disintegration Ember Particles
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
-      p.x += p.vx * dtSeconds;
-      p.y += p.vy * dtSeconds;
+      p.sprite.x += p.vx * dtSeconds;
+      p.sprite.y += p.vy * dtSeconds;
       p.life -= dtSeconds;
-      p.alpha = Math.max(0, p.life * 1.5);
+      p.sprite.setAlpha(Math.max(0, p.life / p.maxLife));
 
       if (p.life <= 0) {
+        p.sprite.destroy();
         this.particles.splice(i, 1);
+      }
+    }
+
+    // 2. Render and Sync Enemy Sprites
+    const activeEnemyIds = new Set<string>();
+
+    for (const enemy of enemies) {
+      if (enemy.isDestroyed) {
+        // Destroy sprite if enemy has perished
+        const existing = this.enemySprites.get(enemy.id);
+        if (existing) {
+          existing.destroy();
+          this.enemySprites.delete(enemy.id);
+        }
         continue;
       }
 
-      this.particleGraphics.fillStyle(0xffe288, p.alpha);
-      this.particleGraphics.fillCircle(p.x, p.y, p.size);
+      activeEnemyIds.add(enemy.id);
+      let sprite = this.enemySprites.get(enemy.id);
+
+      if (!sprite) {
+        sprite = this.scene.add
+          .sprite(enemy.x, enemy.y, ASSET_KEYS.SHADOW_STALKER)
+          .setDepth(55)
+          .setOrigin(0.5, 0.5);
+        this.enemySprites.set(enemy.id, sprite);
+      }
+
+      // Jitter when exposed to burning light
+      let shakeX = 0;
+      let shakeY = 0;
+      if (enemy.isFrozen) {
+        const shakeIntensity = 4 * (0.4 + enemy.exposureRatio * 0.6);
+        shakeX = (Math.random() - 0.5) * shakeIntensity;
+        shakeY = (Math.random() - 0.5) * shakeIntensity;
+      }
+
+      sprite.setPosition(enemy.x + shakeX, enemy.y + shakeY);
+
+      // Subtle breathing scale
+      const pulse = 1 + Math.sin(this.animTimer + enemy.x) * 0.05;
+      sprite.setScale(pulse, pulse);
+
+      // Texture swap: normal stalker vs light-exposed burning stalker
+      const targetTexture = enemy.isFrozen
+        ? ASSET_KEYS.SHADOW_STALKER_EXPOSED
+        : ASSET_KEYS.SHADOW_STALKER;
+
+      if (sprite.texture.key !== targetTexture) {
+        sprite.setTexture(targetTexture);
+      }
+
+      // Spawn burning embers while exposed
+      if (enemy.isFrozen && Math.random() < 0.3) {
+        this.spawnSingleEmber(
+          enemy.x + (Math.random() - 0.5) * 16,
+          enemy.y + (Math.random() - 0.5) * 16
+        );
+      }
     }
 
-    // 2. Draw active shadow enemies
-    for (const enemy of enemies) {
-      if (enemy.isDestroyed) continue;
-
-      this.drawEnemy(enemy);
-    }
-  }
-
-  private drawEnemy(enemy: EnemyStateSnapshot): void {
-    const isExposed = enemy.isFrozen;
-    const exposure = enemy.exposureRatio;
-
-    // Shake jitter when exposed to burning light
-    let shakeX = 0;
-    let shakeY = 0;
-    if (isExposed) {
-      shakeX = (Math.random() - 0.5) * 6 * (0.4 + exposure * 0.6);
-      shakeY = (Math.random() - 0.5) * 6 * (0.4 + exposure * 0.6);
-    }
-
-    const ex = enemy.x + shakeX;
-    const ey = enemy.y + shakeY;
-
-    // Outer dark shadow aura
-    this.graphics.fillStyle(0x06050a, 0.6);
-    this.graphics.fillCircle(ex, ey, 18);
-
-    // Shadow tendrils undulating
-    const tendrilCount = 6;
-    for (let i = 0; i < tendrilCount; i++) {
-      const angle = (i * Math.PI * 2) / tendrilCount + this.animTimer * 0.8;
-      const tendrilLen = 14 + Math.sin(this.animTimer * 2 + i) * 5;
-      const tx = ex + Math.cos(angle) * tendrilLen;
-      const ty = ey + Math.sin(angle) * tendrilLen;
-
-      this.graphics.lineStyle(3, 0x110d18, 0.7);
-      this.graphics.lineBetween(ex, ey, tx, ty);
-    }
-
-    // Core shadow body
-    this.graphics.fillStyle(0x130e1c, 0.95);
-    this.graphics.fillCircle(ex, ey, 12);
-
-    // Glowing creepy eyes
-    const eyeOffset = Math.sin(this.animTimer * 1.2) * 1.5;
-    const eyeColor = isExposed ? 0xff4433 : 0xffeb88;
-    this.graphics.fillStyle(eyeColor, 0.95);
-    this.graphics.fillCircle(ex - 4 + eyeOffset, ey - 3, 2);
-    this.graphics.fillCircle(ex + 4 + eyeOffset, ey - 3, 2);
-
-    // Burning light exposure effect
-    if (isExposed) {
-      // Searing bright outline
-      this.graphics.lineStyle(2 + exposure * 2, 0xffea88, 0.85);
-      this.graphics.strokeCircle(ex, ey, 13 + exposure * 2);
-
-      // Searing core glow
-      this.graphics.fillStyle(0xffffff, exposure * 0.7);
-      this.graphics.fillCircle(ex, ey, 9 * exposure);
-
-      // Spawn burning embers
-      if (Math.random() < 0.35) {
-        this.particles.push({
-          x: ex + (Math.random() - 0.5) * 16,
-          y: ey + (Math.random() - 0.5) * 16,
-          vx: (Math.random() - 0.5) * 70,
-          vy: -30 - Math.random() * 40,
-          alpha: 1.0,
-          size: 1.5 + Math.random() * 2,
-          life: 0.3 + Math.random() * 0.3,
-        });
+    // Cleanup any sprites for enemies no longer in the snapshot
+    for (const [id, sprite] of this.enemySprites.entries()) {
+      if (!activeEnemyIds.has(id)) {
+        sprite.destroy();
+        this.enemySprites.delete(id);
       }
     }
   }
 
+  private spawnSingleEmber(x: number, y: number): void {
+    const pSprite = this.scene.add
+      .sprite(x, y, ASSET_KEYS.PARTICLE_EMBER)
+      .setDepth(58)
+      .setOrigin(0.5, 0.5);
+
+    const life = 0.3 + Math.random() * 0.3;
+    this.particles.push({
+      sprite: pSprite,
+      vx: (Math.random() - 0.5) * 60,
+      vy: -30 - Math.random() * 40,
+      life,
+      maxLife: life,
+    });
+  }
+
   public spawnDisintegrationBurst(x: number, y: number): void {
-    const count = 28;
+    const count = 20;
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = 40 + Math.random() * 90;
+      const life = 0.4 + Math.random() * 0.4;
+
+      const pSprite = this.scene.add
+        .sprite(x, y, ASSET_KEYS.PARTICLE_EMBER)
+        .setDepth(58)
+        .setOrigin(0.5, 0.5)
+        .setScale(1 + Math.random() * 0.6);
+
       this.particles.push({
-        x,
-        y,
+        sprite: pSprite,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        alpha: 1.0,
-        size: 2 + Math.random() * 3,
-        life: 0.45 + Math.random() * 0.4,
+        life,
+        maxLife: life,
       });
     }
   }
 
   public destroy(): void {
-    this.graphics.destroy();
-    this.particleGraphics.destroy();
+    for (const sprite of this.enemySprites.values()) {
+      sprite.destroy();
+    }
+    this.enemySprites.clear();
+
+    for (const p of this.particles) {
+      p.sprite.destroy();
+    }
     this.particles = [];
   }
 }

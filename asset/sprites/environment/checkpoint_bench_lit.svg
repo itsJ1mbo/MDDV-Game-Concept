@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 40" width="56" height="40">
+  <defs>
+    <radialGradient id="benchFireGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="35%" stop-color="#ffe677" stop-opacity="0.85"/>
+      <stop offset="70%" stop-color="#ff9922" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#d65a0b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Welcoming Campfire Warm Ground Glow -->
+  <circle cx="28" cy="15" r="22" fill="url(#benchFireGlow)"/>
+
+  <!-- Wooden Bench Legs -->
+  <rect x="10" y="28" width="4" height="11" rx="1" fill="#291a10"/>
+  <rect x="42" y="28" width="4" height="11" rx="1" fill="#291a10"/>
+  <rect x="12" y="34" width="32" height="3" rx="0.5" fill="#362215"/>
+
+  <!-- Bench Seat Plank Base -->
+  <rect x="6" y="24" width="44" height="6" rx="2" fill="#422c1d"/>
+  <line x1="7" y1="25" x2="49" y2="25" stroke="#5c3e29" stroke-width="0.8"/>
+
+  <!-- Worn Cushion -->
+  <rect x="9" y="20" width="38" height="5" rx="2" fill="#73452b"/>
+  <circle cx="16" cy="22.5" r="0.9" fill="#24140b"/>
+  <circle cx="28" cy="22.5" r="0.9" fill="#24140b"/>
+  <circle cx="40" cy="22.5" r="0.9" fill="#24140b"/>
+
+  <!-- Roaring Hearth Lantern Housing -->
+  <rect x="24" y="10" width="8" height="10" rx="1" fill="#1f1813"/>
+  <!-- Blazing Core Flame -->
+  <rect x="25" y="12" width="6" height="6" rx="0.5" fill="#fffbe6"/>
+  <circle cx="28" cy="15" r="3.2" fill="#ffdd55"/>
+  <circle cx="28" cy="15" r="1.6" fill="#ffffff"/>
+
+  <!-- Golden Halo Rings -->
+  <circle cx="28" cy="15" r="7" stroke="#ffe277" stroke-width="1.2" fill="none" opacity="0.8"/>
+  <circle cx="28" cy="15" r="11" stroke="#ffb833" stroke-width="0.8" fill="none" opacity="0.5" stroke-dasharray="2,2"/>
+
+  <!-- Lantern Top Finial -->
+  <line x1="28" y1="8" x2="28" y2="10" stroke="#7a5c36" stroke-width="1.2"/>
+</svg>

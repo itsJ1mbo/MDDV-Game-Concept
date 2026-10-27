@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36" height="36">
+  <defs>
+    <radialGradient id="shadowGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1c1229" stop-opacity="0.95"/>
+      <stop offset="65%" stop-color="#0c0714" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#050308" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Outer Shadow Mist -->
+  <circle cx="18" cy="18" r="17" fill="url(#shadowGlow)"/>
+
+  <!-- Creeping Shadow Tendrils -->
+  <path d="M 18,18 Q 8,10 4,14 Q 9,18 18,18 Z" fill="#0f0917"/>
+  <path d="M 18,18 Q 28,10 32,13 Q 27,18 18,18 Z" fill="#0f0917"/>
+  <path d="M 18,18 Q 7,24 3,21 Q 8,27 18,18 Z" fill="#120c1c"/>
+  <path d="M 18,18 Q 29,25 33,22 Q 28,27 18,18 Z" fill="#120c1c"/>
+  <path d="M 18,18 Q 18,6 15,2 Q 21,7 18,18 Z" fill="#0d0817"/>
+  <path d="M 18,18 Q 17,30 19,35 Q 14,29 18,18 Z" fill="#0d0817"/>
+
+  <!-- Core Shadow Mass -->
+  <circle cx="18" cy="18" r="11" fill="#150e21"/>
+  <ellipse cx="18" cy="17" rx="9" ry="8" fill="#1b1229"/>
+
+  <!-- Sinister Glowing Yellow Eyes -->
+  <circle cx="14" cy="16" r="2.2" fill="#ffeb73"/>
+  <circle cx="14" cy="16" r="1" fill="#ffffff"/>
+  <circle cx="22" cy="16" r="2.2" fill="#ffeb73"/>
+  <circle cx="22" cy="16" r="1" fill="#ffffff"/>
+</svg>

@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" width="160" height="40">
+  <defs>
+    <!-- Weathered Wood Texture Elements -->
+    <pattern id="woodGrain" width="20" height="20" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="5" x2="20" y2="5" stroke="#36261a" stroke-width="0.8"/>
+      <line x1="0" y1="12" x2="20" y2="12" stroke="#2a1d13" stroke-width="0.7"/>
+    </pattern>
+  </defs>
+
+  <!-- ================= ROW 0 ================= -->
+  <!-- Tile 1 (GID 1): Platform Top Left -->
+  <g id="tile_top_left">
+    <rect x="0" y="0" width="20" height="20" fill="#2b1e15"/>
+    <rect x="1" y="1" width="19" height="3" fill="#4d3725"/>
+    <line x1="0" y1="0" x2="20" y2="0" stroke="#5e4430" stroke-width="1"/>
+    <line x1="0" y1="0" x2="0" y2="20" stroke="#1c130d" stroke-width="1"/>
+    <circle cx="6" cy="10" r="2.2" fill="#150f0a"/>
+    <circle cx="5.5" cy="9.5" r="0.7" fill="#695341"/>
+    <line x1="0" y1="6" x2="20" y2="6" stroke="#221710" stroke-width="0.8"/>
+  </g>
+
+  <!-- Tile 2 (GID 2): Platform Top Mid -->
+  <g id="tile_top_mid">
+    <rect x="20" y="0" width="20" height="20" fill="#2b1e15"/>
+    <rect x="20" y="1" width="20" height="3" fill="#4d3725"/>
+    <line x1="20" y1="0" x2="40" y2="0" stroke="#5e4430" stroke-width="1"/>
+    <line x1="20" y1="6" x2="40" y2="6" stroke="#221710" stroke-width="0.8"/>
+    <line x1="24" y1="11" x2="36" y2="11" stroke="#3d2a1d" stroke-width="0.8"/>
+    <line x1="20" y1="16" x2="40" y2="16" stroke="#1e140d" stroke-width="0.8"/>
+  </g>
+
+  <!-- Tile 3 (GID 3): Platform Top Right -->
+  <g id="tile_top_right">
+    <rect x="40" y="0" width="20" height="20" fill="#2b1e15"/>
+    <rect x="40" y="1" width="19" height="3" fill="#4d3725"/>
+    <line x1="40" y1="0" x2="60" y2="0" stroke="#5e4430" stroke-width="1"/>
+    <line x1="59" y1="0" x2="59" y2="20" stroke="#1c130d" stroke-width="1"/>
+    <circle cx="54" cy="10" r="2.2" fill="#150f0a"/>
+    <circle cx="53.5" cy="9.5" r="0.7" fill="#695341"/>
+    <line x1="40" y1="6" x2="60" y2="6" stroke="#221710" stroke-width="0.8"/>
+  </g>
+
+  <!-- Tile 4 (GID 4): Solid Wood Fill / Underside -->
+  <g id="tile_solid_wood">
+    <rect x="60" y="0" width="20" height="20" fill="#20160f"/>
+    <line x1="60" y1="8" x2="80" y2="8" stroke="#18100a" stroke-width="1"/>
+    <line x1="60" y1="16" x2="80" y2="16" stroke="#18100a" stroke-width="1"/>
+  </g>
+
+  <!-- Tile 5 (GID 5): Shelf Edge Left -->
+  <g id="tile_shelf_left">
+    <rect x="80" y="0" width="20" height="20" fill="#241912"/>
+    <polygon points="80,0 86,0 86,20 80,14" fill="#3a281c"/>
+    <line x1="86" y1="0" x2="86" y2="20" stroke="#170f0a" stroke-width="1"/>
+  </g>
+
+  <!-- Tile 6 (GID 6): Vertical Pillar / Post -->
+  <g id="tile_pillar">
+    <rect x="100" y="0" width="20" height="20" fill="#140d09"/>
+    <rect x="104" y="0" width="12" height="20" fill="#261a12"/>
+    <line x1="104" y1="0" x2="104" y2="20" stroke="#38261a" stroke-width="1"/>
+    <line x1="116" y1="0" x2="116" y2="20" stroke="#140d09" stroke-width="1"/>
+  </g>
+
+  <!-- Tile 7 (GID 7): Iron Bracket Brace -->
+  <g id="tile_bracket">
+    <rect x="120" y="0" width="20" height="20" fill="#18120d"/>
+    <polygon points="120,0 140,20 136,20 120,4" fill="#110d0a"/>
+    <circle cx="123" cy="3" r="1.5" fill="#383028"/>
+    <circle cx="137" cy="17" r="1.5" fill="#383028"/>
+  </g>
+
+  <!-- Tile 8 (GID 8): Shadow Void -->
+  <g id="tile_void">
+    <rect x="140" y="0" width="20" height="20" fill="#09070c"/>
+  </g>
+
+  <!-- ================= ROW 1 ================= -->
+  <!-- Tile 9 (GID 9): Platform Bottom Left -->
+  <g id="tile_bottom_left">
+    <rect x="0" y="20" width="20" height="20" fill="#1d140e"/>
+    <line x1="0" y1="39" x2="20" y2="39" stroke="#100b07" stroke-width="1.2"/>
+    <line x1="0" y1="20" x2="0" y2="40" stroke="#140d08" stroke-width="1"/>
+  </g>
+
+  <!-- Tile 10 (GID 10): Platform Bottom Mid -->
+  <g id="tile_bottom_mid">
+    <rect x="20" y="20" width="20" height="20" fill="#1d140e"/>
+    <line x1="20" y1="39" x2="40" y2="39" stroke="#100b07" stroke-width="1.2"/>
+    <line x1="20" y1="28" x2="40" y2="28" stroke="#140d08" stroke-width="0.8"/>
+  </g>
+
+  <!-- Tile 11 (GID 11): Platform Bottom Right -->
+  <g id="tile_bottom_right">
+    <rect x="40" y="20" width="20" height="20" fill="#1d140e"/>
+    <line x1="40" y1="39" x2="60" y2="39" stroke="#100b07" stroke-width="1.2"/>
+    <line x1="59" y1="20" x2="59" y2="40" stroke="#140d08" stroke-width="1"/>
+  </g>
+
+  <!-- Tile 12 (GID 12): Plank Variation Mid -->
+  <g id="tile_plank_alt">
+    <rect x="60" y="20" width="20" height="20" fill="#261a12"/>
+    <line x1="60" y1="20" x2="80" y2="20" stroke="#4a3321" stroke-width="1"/>
+    <line x1="64" y1="27" x2="76" y2="27" stroke="#1a110a" stroke-width="1"/>
+    <circle cx="68" cy="34" r="1.4" fill="#140d08"/>
+    <line x1="60" y1="39" x2="80" y2="39" stroke="#120c08" stroke-width="1"/>
+  </g>
+
+  <!-- Tile 13 (GID 13): Iron Rivet Tile -->
+  <g id="tile_rivet">
+    <rect x="80" y="20" width="20" height="20" fill="#201711"/>
+    <circle cx="90" cy="30" r="3.2" fill="#120d09"/>
+    <circle cx="89.5" cy="29.5" r="1.2" fill="#4d3e33"/>
+  </g>
+
+  <!-- Tile 14 (GID 14): Cross Brace Timber -->
+  <g id="tile_cross_brace">
+    <rect x="100" y="20" width="20" height="20" fill="#160f0a"/>
+    <line x1="100" y1="20" x2="120" y2="40" stroke="#2b1d14" stroke-width="3"/>
+    <line x1="100" y1="40" x2="120" y2="20" stroke="#2b1d14" stroke-width="3"/>
+  </g>
+
+  <!-- Tile 15 (GID 15): Wallpaper Wood Seam -->
+  <g id="tile_wallpaper_seam">
+    <rect x="120" y="20" width="20" height="20" fill="#0d1017"/>
+    <line x1="130" y1="20" x2="130" y2="40" stroke="#151b26" stroke-width="1.5"/>
+  </g>
+
+  <!-- Tile 16 (GID 16): Attic Spiderweb Edge -->
+  <g id="tile_spiderweb">
+    <rect x="140" y="20" width="20" height="20" fill="#0b0e14"/>
+    <path d="M 140,20 Q 150,22 160,20" stroke="#232b3d" stroke-width="0.7" fill="none"/>
+    <path d="M 140,20 Q 148,30 160,20" stroke="#232b3d" stroke-width="0.7" fill="none"/>
+    <line x1="140" y1="20" x2="152" y2="32" stroke="#232b3d" stroke-width="0.7"/>
+  </g>
+</svg>

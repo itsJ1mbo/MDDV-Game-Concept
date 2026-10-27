@@ -33,6 +33,30 @@ Boot
 
 Scenes own lifecycle, composition, and transitions. Domain systems own rules. Renderers and effects visualize state but never become the authority for damage, heat, detection, or progression.
 
+## Asset architecture
+
+All runtime assets are owned by the repository-level `asset/` directory:
+
+```text
+asset/
+  maps/                    editable Tiled JSON maps
+  sprites/
+    characters/            player and lantern sprites
+    enemies/               enemy and particle sprites
+    environment/           background and world props
+    ui/                    HUD and status images
+  tilesets/                SVG tileset images referenced by Tiled maps
+```
+
+Asset rules:
+
+- Every sprite, UI image, environment image, particle image, and tileset image is an SVG. Raster images and raster content embedded in SVG files are not part of the runtime asset pipeline.
+- Levels are authored as Tiled JSON files under `asset/maps/`. Tile layers contain visual terrain, while object layers contain typed gameplay data such as player spawns, platforms, enemies, checkpoints, and goals.
+- Tiled maps may reference only assets in the neighboring `asset/` hierarchy using stable relative paths. The map loader converts authored objects into typed domain definitions; scenes must not duplicate those level entities as hard-coded geometry.
+- Asset keys and paths are declared in `src/infrastructure/assets/AssetKeys.ts` and loaded by `src/infrastructure/assets/AssetLoader.ts`. Presentation code consumes asset keys rather than literal file paths.
+- Use lowercase `snake_case` filenames and stable semantic names. Examples include `player_bear.svg`, `lantern_active.svg`, `shadow_stalker_exposed.svg`, `attic_tileset.svg`, and `level_01.json`.
+- Do not use Phaser geometry generation as an asset substitute. Runtime `Graphics` objects may support transient presentation effects such as fog masks or beam overlays, but must not draw sprites, props, UI artwork, particles, tiles, or level terrain that should be authored as assets.
+
 ## Module boundaries
 
 The exact directory names may evolve, but responsibilities should remain separate:
@@ -62,7 +86,7 @@ src/
   infrastructure/
     input/         action mapping and device adapters
     physics/       Phaser physics adapters
-    assets/        asset keys and loading contracts
+    assets/        asset keys, paths, and loading contracts for /asset
 ```
 
 New code should preserve these boundaries rather than growing a monolithic scene.

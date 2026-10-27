@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Torn Felt Heart Outline -->
+  <path d="M 12,21 C 12,21 3,14 3,7.5 C 3,4.5 5.5,2 8.5,2 C 10.2,2 11.5,3 12,4 C 12.5,3 13.8,2 15.5,2 C 18.5,2 21,4.5 21,7.5 C 21,14 12,21 12,21 Z" fill="#1c1619" stroke="#4a3036" stroke-width="1.2"/>
+
+  <!-- Loose Hanging Thread -->
+  <path d="M 12,12 Q 10,16 8,18" stroke="#6e424b" stroke-width="0.9" fill="none"/>
+  <circle cx="8" cy="18" r="0.6" fill="#6e424b"/>
+
+  <!-- Ghost Stitch Marks -->
+  <path d="M 12,20 C 12,20 4,13.5 4,7.5" stroke="#3d262b" stroke-width="0.8" stroke-dasharray="1.5,1.5" fill="none"/>
+</svg>

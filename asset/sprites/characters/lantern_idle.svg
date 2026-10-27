@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 24" width="16" height="24">
+  <defs>
+    <radialGradient id="idleGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff2a8" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#fca834" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#cc6e14" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Hanging Ring -->
+  <circle cx="8" cy="3" r="2.2" stroke="#8c6a2d" stroke-width="1.2" fill="none"/>
+
+  <!-- Top Brass Cap -->
+  <path d="M 4,5 L 12,5 L 11,8 L 5,8 Z" fill="#9e7b39"/>
+  <rect x="5.5" y="8" width="5" height="1.5" fill="#694f20"/>
+
+  <!-- Glass Chamber Background -->
+  <rect x="4" y="9.5" width="8" height="9" rx="1.5" fill="#18131d" opacity="0.85"/>
+
+  <!-- Amber Core Glow -->
+  <circle cx="8" cy="14" r="5" fill="url(#idleGlow)"/>
+  <circle cx="8" cy="14" r="2" fill="#fff7d6"/>
+
+  <!-- Glass Frame Struts -->
+  <line x1="4.5" y1="9.5" x2="4.5" y2="18.5" stroke="#7a5c24" stroke-width="0.8"/>
+  <line x1="11.5" y1="9.5" x2="11.5" y2="18.5" stroke="#7a5c24" stroke-width="0.8"/>
+
+  <!-- Bottom Brass Base -->
+  <path d="M 4,18.5 L 12,18.5 L 13,21 L 3,21 Z" fill="#9e7b39"/>
+  <rect x="5" y="21" width="6" height="1.5" rx="0.5" fill="#694f20"/>
+</svg>

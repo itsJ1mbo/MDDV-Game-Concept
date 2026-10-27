@@ -24,6 +24,17 @@ This repository contains the design documentation for a 2D atmospheric platforme
 - Prefer small, focused systems and composition over large scene classes.
 - Keep public APIs and data contracts documented when a system is shared by multiple scenes.
 
+## Asset management
+
+- Store every runtime asset under the repository root `asset/` directory. Do not add new runtime assets under `assets/`, `docs/`, or generated build output.
+- Organize assets by role: `asset/sprites/characters/`, `asset/sprites/enemies/`, `asset/sprites/environment/`, `asset/sprites/ui/`, `asset/tilesets/`, and `asset/maps/`.
+- Use SVG for every sprite, UI image, environment image, particle image, and tileset image. Do not add raster sprite files or embed raster images inside SVG files.
+- Use editable Tiled JSON maps in `asset/maps/`. Gameplay level objects, spawn points, checkpoints, enemies, goals, and collision geometry belong in the map rather than being recreated in scene code.
+- Use lowercase `snake_case` names with stable semantic prefixes where useful, such as `player_bear.svg`, `shadow_stalker.svg`, `attic_tileset.svg`, and `level_01.json`.
+- Register asset paths and keys centrally in `src/infrastructure/assets/AssetKeys.ts`, and load them through `AssetLoader`; do not scatter literal asset paths through scenes or renderers.
+- Do not generate artwork with Phaser geometry. `Phaser.GameObjects.Graphics` may only be used for non-artistic runtime presentation effects when no asset-backed alternative is appropriate; it must not replace a sprite, environment image, UI image, particle, tileset, or level artwork.
+- Keep asset loading errors explicit and actionable. Missing assets or invalid Tiled references must not silently fall back to generated shapes or placeholder success states.
+
 ## Phaser guidance
 
 - Scenes coordinate lifecycle and composition; they should not contain all gameplay rules.

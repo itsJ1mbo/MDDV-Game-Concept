@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 44" width="32" height="44">
+  <!-- Bear Ears -->
+  <circle cx="8" cy="9" r="6" fill="#754724"/>
+  <circle cx="8" cy="9" r="3.5" fill="#ba8963"/>
+  <circle cx="24" cy="9" r="6" fill="#754724"/>
+  <circle cx="24" cy="9" r="3.5" fill="#ba8963"/>
+
+  <!-- Head -->
+  <circle cx="16" cy="18" r="13" fill="#88552f"/>
+
+  <!-- Head stitching seam along center -->
+  <path d="M 16,5 Q 16,11 16,14" stroke="#543116" stroke-width="0.8" stroke-dasharray="1.2,1.2" fill="none"/>
+
+  <!-- Snout -->
+  <ellipse cx="16" cy="21" rx="6.5" ry="4.5" fill="#cca17e"/>
+
+  <!-- Embroidered plush nose -->
+  <polygon points="14,19 18,19 16,22" fill="#221710"/>
+  <line x1="16" y1="22" x2="16" y2="23.5" stroke="#221710" stroke-width="0.8"/>
+
+  <!-- Left eye: Cross-stitch (lost button) -->
+  <line x1="10" y1="14.5" x2="13" y2="17.5" stroke="#251a13" stroke-width="1.4" stroke-linecap="round"/>
+  <line x1="13" y1="14.5" x2="10" y2="17.5" stroke="#251a13" stroke-width="1.4" stroke-linecap="round"/>
+
+  <!-- Right eye: Shiny dark button with stitch thread -->
+  <circle cx="20.5" cy="16" r="2.8" fill="#1b1714"/>
+  <circle cx="20" cy="15.5" r="0.8" fill="#443932"/>
+  <line x1="19.7" y1="16" x2="21.3" y2="16" stroke="#ffffff" stroke-width="0.7"/>
+
+  <!-- Bear Body -->
+  <rect x="6" y="27" width="20" height="13" rx="5" fill="#784a26"/>
+
+  <!-- Felt Belly Patch -->
+  <ellipse cx="16" cy="33" rx="6" ry="5" fill="#b38259"/>
+  <!-- Belly Stitches -->
+  <line x1="12" y1="30" x2="13.5" y2="31.5" stroke="#543116" stroke-width="0.9"/>
+  <line x1="18.5" y1="31" x2="20" y2="32.5" stroke="#543116" stroke-width="0.9"/>
+  <line x1="14" y1="36" x2="15.5" y2="37.5" stroke="#543116" stroke-width="0.9"/>
+
+  <!-- Feet / Paws -->
+  <ellipse cx="10" cy="40" rx="4" ry="3" fill="#61391b"/>
+  <ellipse cx="22" cy="40" rx="4" ry="3" fill="#61391b"/>
+
+  <!-- Small arm paws resting at side -->
+  <ellipse cx="5" cy="31" rx="2.5" ry="4" fill="#61391b"/>
+  <ellipse cx="27" cy="31" rx="2.5" ry="4" fill="#61391b"/>
+</svg>

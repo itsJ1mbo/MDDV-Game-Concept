@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36" height="36">
+  <defs>
+    <radialGradient id="searingGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="40%" stop-color="#ffe67a" stop-opacity="0.8"/>
+      <stop offset="80%" stop-color="#ff5522" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#7a1400" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Burning Outer Rim -->
+  <circle cx="18" cy="18" r="17" fill="url(#searingGlow)"/>
+
+  <!-- Dissolving Searing Tendrils -->
+  <path d="M 18,18 Q 8,10 4,14 Q 9,18 18,18 Z" fill="#241411" stroke="#ffaa44" stroke-width="0.8"/>
+  <path d="M 18,18 Q 28,10 32,13 Q 27,18 18,18 Z" fill="#241411" stroke="#ffaa44" stroke-width="0.8"/>
+  <path d="M 18,18 Q 7,24 3,21 Q 8,27 18,18 Z" fill="#29120e" stroke="#ff6622" stroke-width="0.8"/>
+  <path d="M 18,18 Q 29,25 33,22 Q 28,27 18,18 Z" fill="#29120e" stroke="#ff6622" stroke-width="0.8"/>
+
+  <!-- Burning Core with Searing Cracks -->
+  <circle cx="18" cy="18" r="11" fill="#2b1419" stroke="#ffffff" stroke-width="1.2"/>
+  <circle cx="18" cy="18" r="6" fill="#ffeaa3" opacity="0.85"/>
+
+  <!-- Searing Fractures -->
+  <line x1="12" y1="12" x2="18" y2="18" stroke="#ffffff" stroke-width="1.2"/>
+  <line x1="18" y1="18" x2="23" y2="13" stroke="#fff4b8" stroke-width="1.1"/>
+  <line x1="18" y1="18" x2="17" y2="25" stroke="#ff7733" stroke-width="1.1"/>
+
+  <!-- Distressed Glowing Red Eyes -->
+  <circle cx="14" cy="16" r="2.4" fill="#ff2e1f"/>
+  <circle cx="14" cy="16" r="1" fill="#ffffff"/>
+  <circle cx="22" cy="16" r="2.4" fill="#ff2e1f"/>
+  <circle cx="22" cy="16" r="1" fill="#ffffff"/>
+</svg>

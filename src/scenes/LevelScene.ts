@@ -6,7 +6,9 @@ import { EnemyModel } from '../domain/enemy/EnemyModel';
 import { LanternModel } from '../domain/lantern/LanternModel';
 import { LEVEL_1 } from '../domain/level/DefaultLevel';
 import { LevelDefinition } from '../domain/level/LevelTypes';
+import { TiledLevelLoader } from '../domain/level/TiledLevelLoader';
 import { PlayerModel } from '../domain/player/PlayerModel';
+import { ASSET_KEYS } from '../infrastructure/assets/AssetKeys';
 import { InputManager } from '../infrastructure/input/InputManager';
 import { SoundSynthesizer } from '../presentation/audio/SoundSynthesizer';
 import { CheckpointRenderer } from '../presentation/checkpoint/CheckpointRenderer';
@@ -40,11 +42,6 @@ export class LevelScene extends Phaser.Scene {
   private checkpointRenderer!: CheckpointRenderer;
   private hud!: GameHud;
 
-  // Level Visuals
-  private backgroundGraphics!: Phaser.GameObjects.Graphics;
-  private platformGraphics!: Phaser.GameObjects.Graphics;
-  private goalGraphics!: Phaser.GameObjects.Graphics;
-
   // Audio & State tracking
   private footstepTimer = 0;
   private wasGroundedLastFrame = false;
@@ -58,6 +55,12 @@ export class LevelScene extends Phaser.Scene {
   public create(): void {
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
+
+    // Load authoritative level definition directly from loaded Tiled map JSON if available
+    const cachedMap = this.cache.tilemap.get(ASSET_KEYS.LEVEL_01_MAP);
+    if (cachedMap?.data) {
+      this.level = TiledLevelLoader.parse(cachedMap.data);
+    }
 
     // 1. Initialize Domain
     this.player = new PlayerModel(
@@ -104,10 +107,6 @@ export class LevelScene extends Phaser.Scene {
     this.inputManager = new InputManager();
     this.audio = new SoundSynthesizer();
 
-    this.backgroundGraphics = this.add.graphics().setDepth(5);
-    this.platformGraphics = this.add.graphics().setDepth(20);
-    this.goalGraphics = this.add.graphics().setDepth(25);
-
     this.playerRenderer = new PlayerRenderer(this);
     this.enemyRenderer = new EnemyRenderer(this);
     this.checkpointRenderer = new CheckpointRenderer(this);
@@ -120,8 +119,8 @@ export class LevelScene extends Phaser.Scene {
     );
     this.hud = new GameHud(this, width, height);
 
-    // 4. Render Level Scenery
-    this.renderLevelScenery();
+    // 4. Setup Tiled Map & SVG Scenery (Zero geometry code)
+    this.setupLevelMapAndScenery();
 
     // 5. Setup Camera
     this.cameras.main.setBounds(
@@ -147,78 +146,30 @@ export class LevelScene extends Phaser.Scene {
     });
   }
 
-  private renderLevelScenery(): void {
-    // Backdrop: Eerie nursery/attic silhouettes
-    this.backgroundGraphics.clear();
-    const w = DEFAULT_GAME_CONFIG.level.worldWidth;
-    const h = DEFAULT_GAME_CONFIG.level.worldHeight;
+  private setupLevelMapAndScenery(): void {
+    // 1. Vector SVG Background Scenery (spans the full world width)
+    this.add
+      .image(0, 0, ASSET_KEYS.BACKGROUND_ATTIC)
+      .setOrigin(0, 0)
+      .setDepth(5);
+    this.add
+      .image(1600, 0, ASSET_KEYS.BACKGROUND_ATTIC)
+      .setOrigin(0, 0)
+      .setDepth(5);
 
-    // Gradient background
-    this.backgroundGraphics.fillGradientStyle(
-      0x05060a,
-      0x05060a,
-      0x020205,
-      0x020205,
-      1
-    );
-    this.backgroundGraphics.fillRect(0, 0, w, h);
-
-    // Background silhouettes: oversized wooden shelves, wallpaper seams, giant clock, needles
-    this.backgroundGraphics.fillStyle(0x0a0c14, 0.7);
-    this.backgroundGraphics.fillRect(0, 0, w, 80);
-
-    // Giant grandfather clock silhouette in distance
-    this.backgroundGraphics.fillStyle(0x0c0e18, 0.45);
-    this.backgroundGraphics.fillRect(800, 100, 120, 400);
-    this.backgroundGraphics.fillCircle(860, 140, 40);
-
-    // Giant books and spool silhouettes
-    this.backgroundGraphics.fillRect(1500, 120, 80, 240);
-    this.backgroundGraphics.fillRect(1590, 150, 70, 210);
-
-    // Giant carved toy chest silhouette
-    this.backgroundGraphics.fillRect(2120, 260, 220, 140);
-
-    // Solid Platforms: weathered dark wooden planks
-    this.platformGraphics.clear();
-    for (const p of this.level.platforms) {
-      // Wood plank base
-      this.platformGraphics.fillStyle(0x221a14, 1);
-      this.platformGraphics.fillRoundedRect(p.x, p.y, p.width, p.height, 4);
-
-      // Plank top highlight
-      this.platformGraphics.fillStyle(0x403125, 1);
-      this.platformGraphics.fillRect(p.x + 2, p.y, p.width - 4, 3);
-
-      // Plank edge bolts / brackets
-      this.platformGraphics.fillStyle(0x130e0b, 1);
-      this.platformGraphics.fillCircle(p.x + 8, p.y + p.height / 2, 2.5);
-      this.platformGraphics.fillCircle(p.x + p.width - 8, p.y + p.height / 2, 2.5);
+    // 2. Tiled Tilemap Layer for Platforms
+    const map = this.make.tilemap({ key: ASSET_KEYS.LEVEL_01_MAP });
+    const tileset = map.addTilesetImage('attic_tileset', ASSET_KEYS.ATTIC_TILESET);
+    if (tileset) {
+      map.createLayer('Platforms', tileset, 0, 0)?.setDepth(20);
     }
 
-    // Goal Doorway: Warm golden bedroom door at end of level
+    // 3. Vector SVG Goal Doorway
     const goal = this.level.goalArea;
-    this.goalGraphics.clear();
-    // Warm light radiating around door
-    this.goalGraphics.fillStyle(0xffe488, 0.18);
-    this.goalGraphics.fillCircle(
-      goal.x + goal.width / 2,
-      goal.y + goal.height / 2,
-      120
-    );
-
-    // Door frame
-    this.goalGraphics.fillStyle(0x4a3420, 1);
-    this.goalGraphics.fillRoundedRect(goal.x, goal.y, goal.width, goal.height, 6);
-
-    // Open door slit spilling brilliant light
-    this.goalGraphics.fillStyle(0xfff7cc, 0.95);
-    this.goalGraphics.fillRect(goal.x + 12, goal.y + 10, goal.width - 24, goal.height - 10);
-
-    // Golden rays
-    this.goalGraphics.lineStyle(2, 0xffe277, 0.6);
-    this.goalGraphics.lineBetween(goal.x + 20, goal.y + 40, goal.x - 40, goal.y + 20);
-    this.goalGraphics.lineBetween(goal.x + 20, goal.y + 80, goal.x - 60, goal.y + 90);
+    this.add
+      .image(goal.x, goal.y, ASSET_KEYS.GOAL_DOOR)
+      .setOrigin(0.2, 0.05)
+      .setDepth(25);
   }
 
   public update(_time: number, delta: number): void {
@@ -298,7 +249,10 @@ export class LevelScene extends Phaser.Scene {
         onPlayerDamaged: (livesRemaining) => {
           this.audio.playPlayerHurt();
           this.cameras.main.shake(180, 0.012);
-          this.hud.showNotification(`Teddy was struck! Lives remaining: ${livesRemaining}`, 2);
+          this.hud.showNotification(
+            `Teddy was struck! Lives remaining: ${livesRemaining}`,
+            2
+          );
         },
       }
     );
@@ -329,7 +283,10 @@ export class LevelScene extends Phaser.Scene {
       {
         onPlayerDied: () => {
           this.audio.playPlayerHurt();
-          this.hud.showNotification('Teddy fell into the dark! Respawning at checkpoint...', 2.5);
+          this.hud.showNotification(
+            'Teddy fell into the dark! Respawning at checkpoint...',
+            2.5
+          );
         },
         onPlayerRespawned: () => {
           this.cameras.main.flash(250, 20, 20, 30);
@@ -348,10 +305,10 @@ export class LevelScene extends Phaser.Scene {
     this.updateAudioFeedback(dtSeconds, input);
 
     // 10. Update Presentation Layers
-    const lanternStates: [any, any] = [
+    const lanternStates = [
       this.lanterns[0].getState(),
       this.lanterns[1].getState(),
-    ];
+    ] as const;
 
     this.playerRenderer.update(dtSeconds, this.player.getState(), lanternStates);
     this.enemyRenderer.update(

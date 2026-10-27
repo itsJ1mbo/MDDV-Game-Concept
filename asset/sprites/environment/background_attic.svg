@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 600" width="1600" height="600">
+  <defs>
+    <linearGradient id="atticGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#070912"/>
+      <stop offset="60%" stop-color="#04050a"/>
+      <stop offset="100%" stop-color="#020205"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Deep Attic Gradient Sky / Wall -->
+  <rect x="0" y="0" width="1600" height="600" fill="url(#atticGradient)"/>
+
+  <!-- Wallpaper Faded Seams / Vertical Wall Studs in Darkness -->
+  <g stroke="#090d1a" stroke-width="2" opacity="0.4">
+    <line x1="100" y1="0" x2="100" y2="600"/>
+    <line x1="260" y1="0" x2="260" y2="600"/>
+    <line x1="420" y1="0" x2="420" y2="600"/>
+    <line x1="580" y1="0" x2="580" y2="600"/>
+    <line x1="740" y1="0" x2="740" y2="600"/>
+    <line x1="900" y1="0" x2="900" y2="600"/>
+    <line x1="1060" y1="0" x2="1060" y2="600"/>
+    <line x1="1220" y1="0" x2="1220" y2="600"/>
+    <line x1="1380" y1="0" x2="1380" y2="600"/>
+    <line x1="1540" y1="0" x2="1540" y2="600"/>
+  </g>
+
+  <!-- Distant Attic Roof Rafters & Beams -->
+  <rect x="0" y="0" width="1600" height="60" fill="#060810" opacity="0.8"/>
+  <line x1="0" y1="60" x2="1600" y2="60" stroke="#0e1322" stroke-width="3"/>
+
+  <!-- Giant Grandfather Clock Silhouette in Distance -->
+  <g fill="#0b0e1a" opacity="0.65">
+    <!-- Clock Tower Body -->
+    <rect x="380" y="100" width="110" height="420" rx="4"/>
+    <!-- Clock Crown Arch -->
+    <path d="M 370,120 Q 435,70 500,120 Z"/>
+    <!-- Clock Face Dial in Dim Moonlight -->
+    <circle cx="435" cy="150" r="36" fill="#101524"/>
+    <circle cx="435" cy="150" r="32" stroke="#171e33" stroke-width="1.5" fill="none"/>
+    <circle cx="435" cy="150" r="3" fill="#1f2842"/>
+    <line x1="435" y1="150" x2="435" y2="130" stroke="#1f2842" stroke-width="2"/>
+    <line x1="435" y1="150" x2="448" y2="150" stroke="#1f2842" stroke-width="1.5"/>
+    <!-- Clock Waist & Glass Pendulum Chamber -->
+    <rect x="400" y="210" width="70" height="180" rx="2" fill="#080a13"/>
+    <line x1="435" y1="220" x2="435" y2="330" stroke="#171d30" stroke-width="2"/>
+    <circle cx="435" cy="330" r="14" fill="#14192b"/>
+  </g>
+
+  <!-- Distant Giant Bookshelf & Forgotten Storybooks -->
+  <g fill="#0c101c" opacity="0.55">
+    <rect x="740" y="140" width="70" height="260" rx="3"/>
+    <rect x="815" y="160" width="65" height="240" rx="3"/>
+    <rect x="885" y="120" width="80" height="280" rx="3"/>
+    <!-- Leaning Book -->
+    <polygon points="970,220 1020,180 1060,390 1005,400"/>
+    <!-- Oversized Sewing Thread Spool Silhouette -->
+    <rect x="1100" y="290" width="60" height="10" rx="2"/>
+    <rect x="1110" y="300" width="40" height="70"/>
+    <rect x="1100" y="370" width="60" height="10" rx="2"/>
+  </g>
+
+  <!-- Carved Toy Chest Silhouette in Distance -->
+  <g fill="#0b0e18" opacity="0.6">
+    <rect x="1280" y="270" width="200" height="130" rx="6"/>
+    <!-- Domed Chest Lid -->
+    <path d="M 1276,270 Q 1380,240 1484,270 Z"/>
+    <!-- Chest Straps & Lock Clasp -->
+    <rect x="1320" y="260" width="12" height="140" fill="#070912"/>
+    <rect x="1430" y="260" width="12" height="140" fill="#070912"/>
+    <circle cx="1380" cy="285" r="7" fill="#060810"/>
+  </g>
+</svg>
