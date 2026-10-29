@@ -14,19 +14,24 @@ export class FogRenderer {
     viewportWidth: number,
     viewportHeight: number
   ) {
-    // 1. Fog render texture in screen space
+    // 1. Fog render texture in screen space:
+    // Placed at depth 100 to completely blanket the game world (background, tiles, entities).
+    // ScrollFactor 0 pins it to the screen viewport.
     this.renderTexture = this.scene.add
       .renderTexture(0, 0, viewportWidth, viewportHeight)
       .setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(100);
-    this.scene.cameras.main.ignore(this.renderTexture);
 
-    // 2. Offscreen graphics used for erasing shapes from the fog render texture
+    // 2. Offscreen graphics used strictly for carving / erasing shapes from the fog render texture
     this.eraseGraphics = this.scene.make.graphics({ x: 0, y: 0 }, false);
 
-    // 3. World-space beam visuals drawn beneath the fog cutout
-    this.beamGlowGraphics = this.scene.add.graphics().setDepth(50);
+    // 3. Secondary illumination pass: world-space subtle warm amber overlay beneath the fog cutout (depth 50).
+    // Uses NORMAL blend mode with strictly clamped low alpha to warm the scene without washing out art.
+    this.beamGlowGraphics = this.scene.add
+      .graphics()
+      .setDepth(50)
+      .setBlendMode(Phaser.BlendModes.NORMAL);
   }
 
   public resize(width: number, height: number): void {
@@ -40,92 +45,137 @@ export class FogRenderer {
   ): void {
     const cam = this.scene.cameras.main;
 
-    // Convert player position to screen coordinates
-    const screenPx = (playerWorldX - cam.worldView.x) * cam.zoom;
-    const screenPy = (playerWorldY - cam.worldView.y) * cam.zoom;
-    const revealScale = cam.zoom;
+    // Convert player position to screen coordinates accurately regardless of camera scroll
+    const camX = cam.worldView?.width ? cam.worldView.x : cam.scrollX;
+    const camY = cam.worldView?.height ? cam.worldView.y : cam.scrollY;
+    const revealScale = cam.zoom || 1;
+    const screenPx = (playerWorldX - camX) * revealScale;
+    const screenPy = (playerWorldY - camY) * revealScale;
 
-    // 1. Clear and refill base fog of war
+    // 1. Fog of War Mask: Clear and refill base fog layer with absolute pitch black (#000000 at 100% opacity)
     this.renderTexture.clear();
-    this.renderTexture.fill(0x000000, 1);
+    this.renderTexture.fill(this.fogTuning.fogColor, this.fogTuning.fogOpacity);
 
-    // 2. Erase visibility shapes
+    // 2. Erase visibility shapes using destination-out (BlendModes.ERASE)
+    // Light sources function primarily as a mask reveal for the Fog of War layer.
+    // Carving holes reveals the underlying hand-crafted artwork in its native contrast and vibrant colors.
     this.eraseGraphics.clear();
+
+    const playerRadius = this.fogTuning.playerVisibilityRadius * revealScale;
+    const edgeSoftness = Math.min(this.fogTuning.edgeSoftness * revealScale, playerRadius * 0.35);
+    const coreRadius = Math.max(1, playerRadius - edgeSoftness);
+
+    // Soft outer falloff for the player's personal light radius
+    if (edgeSoftness > 0) {
+      this.eraseGraphics.fillStyle(0xffffff, 0.25);
+      this.eraseGraphics.fillCircle(screenPx, screenPy, playerRadius);
+
+      this.eraseGraphics.fillStyle(0xffffff, 0.65);
+      this.eraseGraphics.fillCircle(screenPx, screenPy, coreRadius + edgeSoftness * 0.5);
+    }
+
+    // Fully revealed central core (100% mask cutout)
     this.eraseGraphics.fillStyle(0xffffff, 1.0);
+    this.eraseGraphics.fillCircle(screenPx, screenPy, coreRadius);
 
-    // Erase player tight personal circle
-    this.eraseGraphics.fillCircle(
-      screenPx,
-      screenPy,
-      this.fogTuning.playerVisibilityRadius * revealScale
-    );
-
-    // Erase beam cones for active lanterns
+    // Erase beam cones for active, non-destroyed lanterns
     for (const lantern of lanterns) {
       if (lantern.isBeamActive && !lantern.isDestroyed) {
+        const beamRange = this.lanternTuning.maxBeamRange * revealScale;
+        const beamAngle = lantern.currentAngleDegrees;
+        const beamSpread = this.lanternTuning.beamAngleDegrees;
+        const beamSoftness = Math.min(this.fogTuning.edgeSoftness * revealScale, beamRange * 0.15);
+        const coreRange = Math.max(1, beamRange - beamSoftness);
+        const coreSpread = Math.max(1, beamSpread - 4);
+
+        // Soft outer angular and distance falloff
+        if (beamSoftness > 0) {
+          this.eraseGraphics.fillStyle(0xffffff, 0.35);
+          this.drawAcuteSector(
+            this.eraseGraphics,
+            screenPx,
+            screenPy,
+            beamRange,
+            beamAngle,
+            beamSpread
+          );
+        }
+
+        // Fully cleared primary beam cone (100% mask cutout)
+        this.eraseGraphics.fillStyle(0xffffff, 1.0);
         this.drawAcuteSector(
           this.eraseGraphics,
           screenPx,
           screenPy,
-          this.lanternTuning.maxBeamRange * revealScale,
-          lantern.currentAngleDegrees,
-          this.lanternTuning.beamAngleDegrees
+          coreRange,
+          beamAngle,
+          coreSpread
         );
       }
     }
 
-    // Apply erasure to fog layer
+    // Apply erasure to fog layer:
+    // Areas covered by eraseGraphics are cleared to reveal the world;
+    // Areas outside remain absolute opaque black (#000000).
     this.renderTexture.erase(this.eraseGraphics, 0, 0);
 
-    // 3. Draw ambient & active light glow in world space
+    // 3. Secondary Atmospheric Illumination Pass (World Space - Depth 50)
+    // Strictly warm amber tones with low clamped alpha;
+    // Decoupled from visibility masking so it never blows out color levels or drives RGB toward white.
     this.beamGlowGraphics.clear();
 
-    // Subtle warm halo around the teddy bear
-    this.beamGlowGraphics.fillStyle(0xffe8ba, 0.12);
-    this.beamGlowGraphics.fillCircle(
-      playerWorldX,
-      playerWorldY,
-      this.fogTuning.playerVisibilityRadius * 0.95
-    );
+    // Subtle warm amber aura around the teddy bear
+    if (this.fogTuning.lanternHaloIntensity > 0) {
+      this.beamGlowGraphics.fillStyle(
+        this.fogTuning.lanternHaloColor,
+        this.fogTuning.lanternHaloIntensity
+      );
+      this.beamGlowGraphics.fillCircle(
+        playerWorldX,
+        playerWorldY,
+        this.fogTuning.playerVisibilityRadius * 0.75
+      );
+    }
 
-    this.beamGlowGraphics.fillStyle(0xfff5dd, 0.2);
-    this.beamGlowGraphics.fillCircle(
-      playerWorldX,
-      playerWorldY,
-      this.fogTuning.playerVisibilityRadius * 0.55
-    );
-
-    // Dramatic lighthouse beam glow
+    // Warm directional illumination for active lantern beams
     for (const lantern of lanterns) {
       if (lantern.isBeamActive && !lantern.isDestroyed) {
-        // Outer softer beam
-        this.beamGlowGraphics.fillStyle(0xffea9f, 0.22);
-        this.drawAcuteSector(
-          this.beamGlowGraphics,
-          playerWorldX,
-          playerWorldY,
-          this.lanternTuning.maxBeamRange,
-          lantern.currentAngleDegrees,
-          this.lanternTuning.beamAngleDegrees * 1.05
-        );
+        if (this.fogTuning.lanternBeamIntensity > 0) {
+          // Soft outer atmospheric cone (half intensity)
+          this.beamGlowGraphics.fillStyle(
+            this.fogTuning.lanternBeamColor,
+            this.fogTuning.lanternBeamIntensity * 0.5
+          );
+          this.drawAcuteSector(
+            this.beamGlowGraphics,
+            playerWorldX,
+            playerWorldY,
+            this.lanternTuning.maxBeamRange,
+            lantern.currentAngleDegrees,
+            this.lanternTuning.beamAngleDegrees
+          );
 
-        // Core searing beam
-        this.beamGlowGraphics.fillStyle(0xffffff, 0.45);
-        this.drawAcuteSector(
-          this.beamGlowGraphics,
-          playerWorldX,
-          playerWorldY,
-          this.lanternTuning.maxBeamRange * 0.92,
-          lantern.currentAngleDegrees,
-          this.lanternTuning.beamAngleDegrees * 0.65
-        );
+          // Focused warm amber core (full clamped intensity, warm amber only - no pure white)
+          this.beamGlowGraphics.fillStyle(
+            this.fogTuning.lanternBeamColor,
+            this.fogTuning.lanternBeamIntensity
+          );
+          this.drawAcuteSector(
+            this.beamGlowGraphics,
+            playerWorldX,
+            playerWorldY,
+            this.lanternTuning.maxBeamRange * 0.82,
+            lantern.currentAngleDegrees,
+            this.lanternTuning.beamAngleDegrees * 0.72
+          );
 
-        // Center piercing laser ray
-        this.beamGlowGraphics.lineStyle(2, 0xffffff, 0.8);
-        const rad = Phaser.Math.DegToRad(lantern.currentAngleDegrees);
-        const endX = playerWorldX + Math.cos(rad) * this.lanternTuning.maxBeamRange;
-        const endY = playerWorldY + Math.sin(rad) * this.lanternTuning.maxBeamRange;
-        this.beamGlowGraphics.lineBetween(playerWorldX, playerWorldY, endX, endY);
+          // Subtle warm filament guide (warm golden amber, clamped low alpha, width 1px - no white laser ray)
+          this.beamGlowGraphics.lineStyle(1, this.fogTuning.lanternBeamColor, 0.15);
+          const rad = Phaser.Math.DegToRad(lantern.currentAngleDegrees);
+          const endX = playerWorldX + Math.cos(rad) * (this.lanternTuning.maxBeamRange * 0.85);
+          const endY = playerWorldY + Math.sin(rad) * (this.lanternTuning.maxBeamRange * 0.85);
+          this.beamGlowGraphics.lineBetween(playerWorldX, playerWorldY, endX, endY);
+        }
       }
     }
   }

@@ -40,6 +40,12 @@ export interface FogTuning {
   readonly fogColor: number;
   readonly fogOpacity: number;
   readonly edgeSoftness: number;
+  readonly ambientLightColor: number;
+  readonly ambientLightOpacity: number;
+  readonly lanternBeamColor: number;
+  readonly lanternBeamIntensity: number;
+  readonly lanternHaloColor: number;
+  readonly lanternHaloIntensity: number;
 }
 
 export interface EnemyTuning {
@@ -113,8 +119,14 @@ export const DEFAULT_GAME_CONFIG: GameConfig = {
     playerVisibilityRadius: 85,
     beamVisibilityRadius: 260,
     fogColor: 0x000000,
-    fogOpacity: 1,
-    edgeSoftness: 12,
+    fogOpacity: 1.0,
+    edgeSoftness: 14,
+    ambientLightColor: 0x000000,
+    ambientLightOpacity: 1.0,
+    lanternBeamColor: 0xe08a1e, // Warm golden amber (RGB: 224, 138, 30) - no pure white blowout
+    lanternBeamIntensity: 0.12, // Subtly clamped illumination overlay (preserves native art contrast)
+    lanternHaloColor: 0xd97706, // Deep warm amber (RGB: 217, 119, 6)
+    lanternHaloIntensity: 0.08, // Gentle personal aura around the teddy bear
   },
   enemy: {
     stalkSpeed: 52,
@@ -175,6 +187,35 @@ export function validateConfig(config: GameConfig): void {
   if (config.fog.playerVisibilityRadius <= 0) {
     throw new Error(
       `[Config] fog.playerVisibilityRadius must be > 0, got ${config.fog.playerVisibilityRadius}`
+    );
+  }
+  if (config.fog.fogOpacity < 0 || config.fog.fogOpacity > 1) {
+    throw new Error(
+      `[Config] fog.fogOpacity must be between 0 and 1, got ${config.fog.fogOpacity}`
+    );
+  }
+  if (config.fog.fogColor < 0) {
+    throw new Error(`[Config] fog.fogColor must be >= 0, got ${config.fog.fogColor}`);
+  }
+  if (config.fog.edgeSoftness < 0) {
+    throw new Error(`[Config] fog.edgeSoftness must be >= 0, got ${config.fog.edgeSoftness}`);
+  }
+  if (config.fog.ambientLightColor < 0) {
+    throw new Error(`[Config] fog.ambientLightColor must be >= 0, got ${config.fog.ambientLightColor}`);
+  }
+  if (config.fog.ambientLightOpacity < 0 || config.fog.ambientLightOpacity > 1) {
+    throw new Error(
+      `[Config] fog.ambientLightOpacity must be between 0 and 1, got ${config.fog.ambientLightOpacity}`
+    );
+  }
+  if (config.fog.lanternBeamIntensity < 0 || config.fog.lanternBeamIntensity > 1) {
+    throw new Error(
+      `[Config] fog.lanternBeamIntensity must be between 0 and 1, got ${config.fog.lanternBeamIntensity}`
+    );
+  }
+  if (config.fog.lanternHaloIntensity < 0 || config.fog.lanternHaloIntensity > 1) {
+    throw new Error(
+      `[Config] fog.lanternHaloIntensity must be between 0 and 1, got ${config.fog.lanternHaloIntensity}`
     );
   }
   if (config.level.abyssY <= 0) {

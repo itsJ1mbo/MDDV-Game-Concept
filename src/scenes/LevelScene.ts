@@ -124,6 +124,7 @@ export class LevelScene extends Phaser.Scene {
     this.setupLevelMapAndScenery();
 
     // 5. Setup Camera
+    this.cameras.main.setBackgroundColor('#000000');
     this.cameras.main.setBounds(
       0,
       0,
@@ -136,6 +137,9 @@ export class LevelScene extends Phaser.Scene {
       1,
       1
     );
+
+    // Responsive viewport resizing for Fog of War render texture
+    this.scale.on('resize', this.onResize, this);
 
     // Interaction audio trigger
     this.input.on('pointerdown', () => this.audio.userInteracted());
@@ -372,7 +376,12 @@ export class LevelScene extends Phaser.Scene {
     this.previousLanternState = [l0Exploded, l1Exploded];
   }
 
+  private onResize(gameSize: Phaser.Structs.Size): void {
+    this.fogRenderer.resize(gameSize.width, gameSize.height);
+  }
+
   public shutdown(): void {
+    this.scale.off('resize', this.onResize, this);
     this.inputManager.destroy();
     this.fogRenderer.destroy();
     this.playerRenderer.destroy();
