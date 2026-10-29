@@ -1,6 +1,8 @@
 import { createGame } from './bootstrap/GameApp';
+import { setupLauncherUI } from './ui/LauncherUI';
 
 function initialize(): void {
+  setupLauncherUI();
   const container = document.getElementById('juego');
   if (container) {
     createGame('juego');

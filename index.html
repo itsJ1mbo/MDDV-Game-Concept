@@ -1,54 +1,158 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" href="asset/sprites/characters/player_bear.svg" type="image/svg+xml" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@1,500;1,600;1,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/game.css">
 
-    <title>The Lost Bear - Echoes in the Dark</title>
+    <title>The Lost Bear · Echoes in the Dark</title>
 </head>
 
-<body>
-    <main class="site-shell">
-        <header class="site-header">
-            <div>
-                <p class="eyebrow">A game of light, fear, and finding home</p>
-                <h1>The Lost Bear</h1>
-                <p class="subtitle">Echoes in the Dark</p>
-            </div>
-            <div class="status-mark" aria-label="Lantern symbol">✦</div>
-        </header>
+<body class="launcher-body">
+    <!-- Atmospheric Ambient Vignette -->
+    <div class="ambient-vignette" aria-hidden="true"></div>
 
-        <section class="game-layout" aria-label="Game and controls">
-            <div class="game-frame">
-                <div class="frame-glow"></div>
-                <div id="juego"></div>
-            </div>
+    <!-- Minimalist Launcher HUD Top Bar -->
+    <header class="launcher-header">
+        <div class="brand-group">
+            <span class="brand-lantern" aria-hidden="true">✦</span>
+            <span class="brand-title">THE LOST BEAR</span>
+            <span class="brand-divider">/</span>
+            <span class="brand-chapter">Chapter I · The Dark Attic</span>
+        </div>
 
-            <aside class="controls-panel">
-                <p class="panel-kicker">Field notes</p>
-                <h2>Controls</h2>
-                <p class="panel-intro">Keep the lanterns steady. The dark is listening.</p>
-                <div class="control-list">
-                    <div class="control-row"><span>Move</span><strong><kbd>A</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>→</kbd></strong></div>
-                    <div class="control-row"><span>Jump</span><strong><kbd>W</kbd> / <kbd>Space</kbd></strong></div>
-                    <div class="control-row"><span>Left beam</span><strong><kbd>J</kbd> / <kbd>Mouse 1</kbd></strong></div>
-                    <div class="control-row"><span>Right beam</span><strong><kbd>K</kbd> / <kbd>Mouse 2</kbd></strong></div>
-                    <div class="control-row"><span>Rest</span><strong><kbd>E</kbd></strong></div>
-                    <div class="control-row"><span>Pause</span><strong><kbd>Esc</kbd> / <kbd>P</kbd></strong></div>
+        <div class="header-actions">
+            <button id="btn-toggle-controls" class="hud-btn" type="button" aria-expanded="false" aria-controls="controls-drawer" title="Toggle Controls Guide (H)">
+                <span class="hud-btn-icon" aria-hidden="true">⌨</span>
+                <span class="hud-btn-label">Controls</span>
+                <kbd class="hud-btn-key">H</kbd>
+            </button>
+            <button id="btn-toggle-fullscreen" class="hud-btn" type="button" title="Toggle Fullscreen (F)">
+                <span class="hud-btn-icon" aria-hidden="true">⛶</span>
+                <span class="hud-btn-label">Fullscreen</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Maximized Game Viewport Stage -->
+    <main class="viewport-stage" id="viewport-stage">
+        <div class="game-frame" id="game-frame">
+            <!-- Decorative Gilded Corner Accents -->
+            <div class="corner-accent corner-tl" aria-hidden="true"></div>
+            <div class="corner-accent corner-tr" aria-hidden="true"></div>
+            <div class="corner-accent corner-bl" aria-hidden="true"></div>
+            <div class="corner-accent corner-br" aria-hidden="true"></div>
+
+            <!-- Soft Frame Ambient Glow Rim -->
+            <div class="frame-ambient-glow" aria-hidden="true"></div>
+
+            <!-- Canvas Container for Phaser -->
+            <div id="juego"></div>
+
+            <!-- Floating Subtle Key HUD Overlay (non-intrusive pill bar) -->
+            <nav class="hud-pill-bar" id="hud-pill-bar" aria-label="Quick Controls Bar">
+                <div class="hud-pill-item">
+                    <span class="hud-pill-keys"><kbd>A</kbd><kbd>D</kbd></span>
+                    <span class="hud-pill-action">Move</span>
                 </div>
-                <p class="controls-note">The three hearts in the upper-left corner are all you need to watch.</p>
-            </aside>
-        </section>
-
-        <footer class="site-footer">
-            <span>Follow the warmth home.</span>
-            <span class="footer-line"></span>
-            <span>Chapter I · The Dark Attic</span>
-        </footer>
+                <div class="hud-pill-item">
+                    <span class="hud-pill-keys"><kbd>W</kbd></span>
+                    <span class="hud-pill-action">Jump</span>
+                </div>
+                <div class="hud-pill-item">
+                    <span class="hud-pill-keys"><kbd>J</kbd> / <kbd>LMB</kbd></span>
+                    <span class="hud-pill-action">Forward Beam</span>
+                </div>
+                <div class="hud-pill-item">
+                    <span class="hud-pill-keys"><kbd>K</kbd> / <kbd>RMB</kbd></span>
+                    <span class="hud-pill-action">High Beam</span>
+                </div>
+                <div class="hud-pill-item">
+                    <span class="hud-pill-keys"><kbd>E</kbd></span>
+                    <span class="hud-pill-action">Rest</span>
+                </div>
+                <div class="hud-pill-item">
+                    <span class="hud-pill-keys"><kbd>Esc</kbd></span>
+                    <span class="hud-pill-action">Pause</span>
+                </div>
+            </nav>
+        </div>
     </main>
+
+    <!-- Slide-Out Collapsible Field Notes & Controls Drawer -->
+    <aside class="controls-drawer" id="controls-drawer" aria-label="Field Notes and Key Bindings" aria-hidden="true">
+        <div class="drawer-header">
+            <div>
+                <p class="drawer-kicker">Field Notes</p>
+                <h2 class="drawer-title">Survival Guide</h2>
+            </div>
+            <button id="btn-close-drawer" class="drawer-close-btn" type="button" aria-label="Close Guide">✕</button>
+        </div>
+
+        <div class="drawer-content">
+            <section class="drawer-section">
+                <h3 class="section-title">Attic Navigation</h3>
+                <div class="binding-grid">
+                    <div class="binding-row">
+                        <span class="binding-label">Traverse Attic</span>
+                        <div class="binding-keys"><kbd>A</kbd><kbd>D</kbd> <span class="key-sep">or</span> <kbd>←</kbd><kbd>→</kbd></div>
+                    </div>
+                    <div class="binding-row">
+                        <span class="binding-label">Jump / Hop</span>
+                        <div class="binding-keys"><kbd>W</kbd> <span class="key-sep">or</span> <kbd>Space</kbd></div>
+                    </div>
+                    <div class="binding-row">
+                        <span class="binding-label">Rest at Checkpoint</span>
+                        <div class="binding-keys"><kbd>E</kbd></div>
+                    </div>
+                    <div class="binding-row">
+                        <span class="binding-label">Pause Expedition</span>
+                        <div class="binding-keys"><kbd>Esc</kbd> <span class="key-sep">or</span> <kbd>P</kbd></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="drawer-section">
+                <h3 class="section-title">Lantern Mechanics</h3>
+                <div class="binding-grid">
+                    <div class="binding-row">
+                        <span class="binding-label">Forward Beam</span>
+                        <div class="binding-keys"><kbd>J</kbd> <span class="key-sep">or</span> <kbd>LMB</kbd></div>
+                    </div>
+                    <div class="binding-row">
+                        <span class="binding-label">High Angled Beam</span>
+                        <div class="binding-keys"><kbd>K</kbd> <span class="key-sep">or</span> <kbd>RMB</kbd></div>
+                    </div>
+                </div>
+                <div class="mechanic-callout">
+                    <p class="callout-heading">✦ The Rule of Light</p>
+                    <p class="callout-body">
+                        The attic is pitched in total darkness. Your lantern reveals the path and banishes lurking shadows.
+                        Continuous beam emission builds heat—rest at checkpoints (<kbd>E</kbd>) to cool down, replenish health, and mend destroyed lanterns.
+                    </p>
+                </div>
+                <div class="mechanic-callout">
+                    <p class="callout-heading">✦ Passive Senses</p>
+                    <p class="callout-body">
+                        Even when turned off, your lantern hums and flickers warmly when hostile shadow entities lurk nearby in the darkness.
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        <footer class="drawer-footer">
+            <span class="drawer-hint">Press <kbd>H</kbd> anytime to toggle this guide</span>
+        </footer>
+    </aside>
+
+    <!-- Overlay backdrop for drawer on mobile / smaller viewports -->
+    <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
+
     <script src="./src/game.ts" type="module"></script>
 </body>
 
